@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: Template API
+  profiles:
+    active: dev
+
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
