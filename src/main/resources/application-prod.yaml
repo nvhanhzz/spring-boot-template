@@ -29,3 +29,10 @@ logging:
   level:
     root: WARN
     sti.project.template: INFO
+
+# Security - JWT Configuration (use environment variable in production)
+app:
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET}
+      authorities-claim-name: authorities

@@ -1,4 +1,4 @@
-package sti.project.template.example.entity;
+package sti.project.template.business.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,15 +10,15 @@ import lombok.Setter;
 import sti.project.template.base.entity.BaseEntity;
 
 /**
- * Example Location entity.
+ * Example entity.
  */
 @Entity
-@Table(name = "locations")
+@Table(name = "examples")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Location extends BaseEntity {
+public class Example extends BaseEntity {
 
     @Column(nullable = false)
     private String name;

@@ -1,9 +1,7 @@
 package sti.project.template.base.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.util.List;
 
@@ -16,25 +14,15 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class PageDTO<T> {
-    private List<T> data;
-    private long total;
-    private int page;
-    private int size;
-    private int totalPages;
-    private boolean hasNext;
-    private boolean hasPrev;
+    List<T> data;
+    Long totalElements;
 
-    public static <T> PageDTO<T> of(List<T> data, long total, int page, int size) {
-        int totalPages = (int) Math.ceil((double) total / size);
+    public static <T> PageDTO<T> of(List<T> data, long totalElements) {
         return PageDTO.<T>builder()
                 .data(data)
-                .total(total)
-                .page(page)
-                .size(size)
-                .totalPages(totalPages)
-                .hasNext(page < totalPages - 1)
-                .hasPrev(page > 0)
+                .totalElements(totalElements)
                 .build();
     }
 }

@@ -1,4 +1,4 @@
-package sti.project.template.example.dto;
+package sti.project.template.business.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -7,12 +7,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Location request DTO for create/update operations.
+ * Example request DTO for create/update operations.
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LocationRequest {
+public class ExampleRequest {
 
     @NotBlank(message = "Name is required")
     @Size(max = 255, message = "Name must be at most 255 characters")

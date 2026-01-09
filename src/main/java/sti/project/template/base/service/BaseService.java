@@ -59,7 +59,7 @@ public abstract class BaseService<T extends BaseEntity, Res extends BaseResponse
         Page<T> pageResult = repository.findAll(spec, pageable);
 
         List<Res> data = mapper.toResponseList(pageResult.getContent());
-        return PageDTO.of(data, pageResult.getTotalElements(), page, size);
+        return PageDTO.of(data, pageResult.getTotalElements());
     }
 
     @Transactional
@@ -134,7 +134,6 @@ public abstract class BaseService<T extends BaseEntity, Res extends BaseResponse
         return new String[0];
     }
 
-    // Lifecycle hooks
     protected void beforeCreate(T entity, Req request) {
     }
 

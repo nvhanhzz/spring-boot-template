@@ -4,8 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import sti.project.template.base.dto.ApiResponse;
 import sti.project.template.base.dto.BaseResponseDTO;
@@ -36,13 +34,13 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success")
     })
-    public ResponseEntity<ApiResponse<PageDTO<Res>>> search(
+    public ApiResponse<PageDTO<Res>> search(
             @Parameter(description = "Search keyword") @RequestParam(required = false) String keyword,
             @Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Page size") @RequestParam(defaultValue = "10") int size,
             @Parameter(description = "Sort field") @RequestParam(defaultValue = "createdAt") String sortBy,
             @Parameter(description = "Sort direction") @RequestParam(defaultValue = "DESC") String sortDir) {
-        return ResponseEntity.ok(ApiResponse.success(service.search(keyword, page, size, sortBy, sortDir)));
+        return ApiResponse.success(service.search(keyword, page, size, sortBy, sortDir));
     }
 
     @GetMapping("/all")
@@ -50,8 +48,8 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success")
     })
-    public ResponseEntity<ApiResponse<List<Res>>> getAll() {
-        return ResponseEntity.ok(ApiResponse.success(service.getAll()));
+    public ApiResponse<List<Res>> getAll() {
+        return ApiResponse.success(service.getAll());
     }
 
     @GetMapping("/{id}")
@@ -60,8 +58,8 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Not found")
     })
-    public ResponseEntity<ApiResponse<Res>> getById(@Parameter(description = "Record ID") @PathVariable UUID id) {
-        return ResponseEntity.ok(ApiResponse.success(service.getById(id)));
+    public ApiResponse<Res> getById(@Parameter(description = "Record ID") @PathVariable UUID id) {
+        return ApiResponse.success(service.getById(id));
     }
 
     @PostMapping
@@ -70,9 +68,8 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Created"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Bad request")
     })
-    public ResponseEntity<ApiResponse<Res>> create(@Valid @RequestBody Req request) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(service.create(request), "Created successfully"));
+    public ApiResponse<Res> create(@Valid @RequestBody Req request) {
+        return ApiResponse.created(service.create(request));
     }
 
     @PutMapping("/{id}")
@@ -82,20 +79,20 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Bad request"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Not found")
     })
-    public ResponseEntity<ApiResponse<Res>> update(@Parameter(description = "Record ID") @PathVariable UUID id,
+    public ApiResponse<Res> update(@Parameter(description = "Record ID") @PathVariable UUID id,
             @Valid @RequestBody Req request) {
-        return ResponseEntity.ok(ApiResponse.success(service.update(id, request), "Updated successfully"));
+        return ApiResponse.success(service.update(id, request), "Updated successfully");
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete record", description = "Soft delete a record")
     @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "204", description = "No content"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Not found")
     })
-    public ResponseEntity<Void> delete(@Parameter(description = "Record ID") @PathVariable UUID id) {
+    public ApiResponse<Void> delete(@Parameter(description = "Record ID") @PathVariable UUID id) {
         service.delete(id);
-        return ResponseEntity.noContent().build();
+        return ApiResponse.success(null, "Deleted successfully");
     }
 
     @PatchMapping("/{id}/restore")
@@ -104,7 +101,7 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Not found")
     })
-    public ResponseEntity<ApiResponse<Res>> restore(@Parameter(description = "Record ID") @PathVariable UUID id) {
-        return ResponseEntity.ok(ApiResponse.success(service.restore(id), "Restored successfully"));
+    public ApiResponse<Res> restore(@Parameter(description = "Record ID") @PathVariable UUID id) {
+        return ApiResponse.success(service.restore(id), "Restored successfully");
     }
 }
