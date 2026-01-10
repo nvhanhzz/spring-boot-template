@@ -1,11 +1,18 @@
 package sti.project.template.base.exception;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.OptimisticLockException;
+import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.FieldError;
@@ -18,8 +25,8 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import sti.project.template.base.dto.ApiResponse;
+import sti.project.template.base.dto.ApiResponseFactory;
 import sti.project.template.base.dto.FieldErrorDetail;
-import sti.project.template.base.i18n.MessageHelper;
 
 import java.io.IOException;
 import java.util.List;
@@ -34,13 +41,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
-        private final MessageHelper messageHelper;
-
-        // ============== HELPER METHOD ==============
-
-        private String getLocalizedMessage(ErrorCode errorCode) {
-                return messageHelper.getMessage(errorCode.getMessageKey());
-        }
+        private final ApiResponseFactory responseFactory;
 
         // ============== SECURITY EXCEPTIONS ==============
 
@@ -49,8 +50,7 @@ public class GlobalExceptionHandler {
                         AuthorizationDeniedException ex, WebRequest request) {
                 log.warn("Authorization denied: {} at path: {}", ex.getMessage(), extractPath(request));
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                                .body(ApiResponse.error(ErrorCode.FORBIDDEN.getCode(),
-                                                getLocalizedMessage(ErrorCode.FORBIDDEN), extractPath(request)));
+                                .body(responseFactory.error(ErrorCode.FORBIDDEN, extractPath(request)));
         }
 
         @ExceptionHandler(AccessDeniedException.class)
@@ -58,16 +58,7 @@ public class GlobalExceptionHandler {
                         AccessDeniedException ex, WebRequest request) {
                 log.warn("Access denied: {} at path: {}", ex.getMessage(), extractPath(request));
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                                .body(ApiResponse.fromErrorCode(ErrorCode.FORBIDDEN, extractPath(request)));
-        }
-
-        @ExceptionHandler(ForbiddenException.class)
-        public ResponseEntity<ApiResponse<Void>> handleForbiddenException(
-                        ForbiddenException ex, WebRequest request) {
-                log.warn("Forbidden: {} at path: {}", ex.getMessage(), extractPath(request));
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                                .body(ApiResponse.fromErrorCode(ErrorCode.FORBIDDEN, ex.getMessage(),
-                                                extractPath(request)));
+                                .body(responseFactory.error(ErrorCode.FORBIDDEN, extractPath(request)));
         }
 
         // ============== APPLICATION EXCEPTIONS ==============
@@ -75,25 +66,88 @@ public class GlobalExceptionHandler {
         @ExceptionHandler(AppException.class)
         public ResponseEntity<ApiResponse<Void>> handleAppException(AppException ex, WebRequest request) {
                 ErrorCode errorCode = ex.getErrorCode();
-                log.warn("AppException: {} - Code: {}", ex.getMessage(), errorCode.getCode());
+                log.warn("AppException: {} - Code: {}", errorCode.getMessageKey(), errorCode.getCode());
                 return ResponseEntity.status(errorCode.getStatusCode())
-                                .body(ApiResponse.fromErrorCode(errorCode, ex.getMessage(), extractPath(request)));
+                                .body(responseFactory.error(errorCode, extractPath(request)));
         }
 
-        @ExceptionHandler(NotFoundException.class)
-        public ResponseEntity<ApiResponse<Void>> handleNotFoundException(NotFoundException ex, WebRequest request) {
-                log.warn("Resource not found: {}", ex.getMessage());
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                .body(ApiResponse.fromErrorCode(ErrorCode.NOT_FOUND, ex.getMessage(),
-                                                extractPath(request)));
-        }
+        // ============== JPA/HIBERNATE EXCEPTIONS ==============
 
-        @ExceptionHandler(BadRequestException.class)
-        public ResponseEntity<ApiResponse<Void>> handleBadRequestException(BadRequestException ex, WebRequest request) {
-                log.warn("Bad request: {}", ex.getMessage());
+        /**
+         * Handle unique constraint violations, foreign key violations, etc.
+         * Example: Duplicate email, invalid foreign key reference
+         */
+        @ExceptionHandler(DataIntegrityViolationException.class)
+        public ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolationException(
+                        DataIntegrityViolationException ex, WebRequest request) {
+                String message = ex.getMostSpecificCause().getMessage();
+                log.warn("Data integrity violation: {}", message);
+
+                // Check if it's a duplicate key error
+                if (message != null && (message.contains("Duplicate") || message.contains("unique constraint")
+                                || message.contains("UNIQUE"))) {
+                        return ResponseEntity.status(HttpStatus.CONFLICT)
+                                        .body(responseFactory.error(ErrorCode.DUPLICATE_KEY, extractPath(request)));
+                }
+
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .body(ApiResponse.fromErrorCode(ErrorCode.BAD_REQUEST, ex.getMessage(),
-                                                extractPath(request)));
+                                .body(responseFactory.error(ErrorCode.DATA_INTEGRITY_VIOLATION, extractPath(request)));
+        }
+
+        /**
+         * Handle optimistic locking failures (concurrent modification).
+         * Spring wrapper for JPA OptimisticLockException
+         */
+        @ExceptionHandler({ OptimisticLockingFailureException.class, ObjectOptimisticLockingFailureException.class })
+        public ResponseEntity<ApiResponse<Void>> handleOptimisticLockingFailureException(
+                        Exception ex, WebRequest request) {
+                log.warn("Optimistic lock failure: {}", ex.getMessage());
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                                .body(responseFactory.error(ErrorCode.OPTIMISTIC_LOCK_FAILURE, extractPath(request)));
+        }
+
+        /**
+         * Handle JPA OptimisticLockException directly
+         */
+        @ExceptionHandler(OptimisticLockException.class)
+        public ResponseEntity<ApiResponse<Void>> handleOptimisticLockException(
+                        OptimisticLockException ex, WebRequest request) {
+                log.warn("JPA Optimistic lock: {}", ex.getMessage());
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                                .body(responseFactory.error(ErrorCode.OPTIMISTIC_LOCK_FAILURE, extractPath(request)));
+        }
+
+        /**
+         * Handle JPA EntityNotFoundException
+         */
+        @ExceptionHandler(EntityNotFoundException.class)
+        public ResponseEntity<ApiResponse<Void>> handleEntityNotFoundException(
+                        EntityNotFoundException ex, WebRequest request) {
+                log.warn("Entity not found: {}", ex.getMessage());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                .body(responseFactory.error(ErrorCode.NOT_FOUND, extractPath(request)));
+        }
+
+        /**
+         * Handle JPA PersistenceException (general JPA errors)
+         */
+        @ExceptionHandler(PersistenceException.class)
+        public ResponseEntity<ApiResponse<Void>> handlePersistenceException(
+                        PersistenceException ex, WebRequest request) {
+                log.error("JPA Persistence error: {}", ex.getMessage(), ex);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(responseFactory.error(ErrorCode.DATABASE_ERROR, extractPath(request)));
+        }
+
+        /**
+         * Handle Spring DataAccessException (general database errors)
+         */
+        @ExceptionHandler(DataAccessException.class)
+        public ResponseEntity<ApiResponse<Void>> handleDataAccessException(
+                        DataAccessException ex, WebRequest request) {
+                log.error("Data access error: {}", ex.getMessage(), ex);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(responseFactory.error(ErrorCode.DATABASE_ERROR, extractPath(request)));
         }
 
         // ============== VALIDATION EXCEPTIONS ==============
@@ -102,10 +156,7 @@ public class GlobalExceptionHandler {
         public ResponseEntity<ApiResponse<Void>> handleValidationException(ValidationException ex, WebRequest request) {
                 log.warn("Validation failed: {}", ex.getMessage());
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .body(ApiResponse.error(
-                                                ErrorCode.VALIDATION_FAILED.getCode(),
-                                                ex.getMessage(),
-                                                extractPath(request),
+                                .body(responseFactory.error(ErrorCode.VALIDATION_FAILED, extractPath(request),
                                                 ex.getFieldErrors()));
         }
 
@@ -125,7 +176,7 @@ public class GlobalExceptionHandler {
 
                 log.warn("Validation failed: {}", fieldErrors);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .body(ApiResponse.error(
+                                .body(responseFactory.error(
                                                 ErrorCode.VALIDATION_FAILED.getCode(),
                                                 firstError,
                                                 extractPath(request),
@@ -142,10 +193,7 @@ public class GlobalExceptionHandler {
 
                 log.warn("Constraint violation: {}", fieldErrors);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .body(ApiResponse.error(
-                                                ErrorCode.VALIDATION_FAILED.getCode(),
-                                                "Validation failed",
-                                                extractPath(request),
+                                .body(responseFactory.error(ErrorCode.VALIDATION_FAILED, extractPath(request),
                                                 fieldErrors));
         }
 
@@ -154,35 +202,23 @@ public class GlobalExceptionHandler {
                         MissingServletRequestParameterException ex, WebRequest request) {
                 log.warn("Missing parameter: {}", ex.getMessage());
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .body(ApiResponse.fromErrorCode(ErrorCode.INVALID_PARAM, ex.getMessage(),
-                                                extractPath(request)));
+                                .body(responseFactory.error(ErrorCode.INVALID_PARAM, extractPath(request)));
         }
 
         @ExceptionHandler(MethodArgumentTypeMismatchException.class)
         public ResponseEntity<ApiResponse<Void>> handleMethodArgumentTypeMismatchException(
                         MethodArgumentTypeMismatchException ex, WebRequest request) {
-                String paramName = ex.getName();
-                String requiredType = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "unknown";
-                String providedValue = ex.getValue() != null ? ex.getValue().toString() : "null";
-
-                String errorMessage = String.format(
-                                "Parameter '%s' has invalid type. Expected '%s' but received '%s'",
-                                paramName, requiredType, providedValue);
-
-                log.warn("Type mismatch: {}", errorMessage);
+                log.warn("Type mismatch for parameter: {}", ex.getName());
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .body(ApiResponse.fromErrorCode(ErrorCode.INVALID_PARAM, errorMessage,
-                                                extractPath(request)));
+                                .body(responseFactory.error(ErrorCode.INVALID_PARAM, extractPath(request)));
         }
 
         @ExceptionHandler(HttpMessageNotReadableException.class)
         public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(
                         HttpMessageNotReadableException ex, WebRequest request) {
-                String message = ex.getMostSpecificCause().getMessage();
-                log.warn("Malformed JSON: {}", message);
+                log.warn("Malformed JSON: {}", ex.getMostSpecificCause().getMessage());
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .body(ApiResponse.fromErrorCode(ErrorCode.INVALID_JSON_FORMAT, message,
-                                                extractPath(request)));
+                                .body(responseFactory.error(ErrorCode.INVALID_JSON_FORMAT, extractPath(request)));
         }
 
         @ExceptionHandler(IllegalArgumentException.class)
@@ -190,8 +226,7 @@ public class GlobalExceptionHandler {
                         IllegalArgumentException ex, WebRequest request) {
                 log.warn("Illegal argument: {}", ex.getMessage());
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .body(ApiResponse.fromErrorCode(ErrorCode.BAD_REQUEST, ex.getMessage(),
-                                                extractPath(request)));
+                                .body(responseFactory.error(ErrorCode.BAD_REQUEST, extractPath(request)));
         }
 
         // ============== CLIENT DISCONNECT ==============
@@ -212,7 +247,7 @@ public class GlobalExceptionHandler {
 
                 log.error("Unexpected error: {}", ex.getMessage(), ex);
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body(ApiResponse.fromErrorCode(ErrorCode.INTERNAL_SERVER_ERROR, extractPath(request)));
+                                .body(responseFactory.error(ErrorCode.INTERNAL_SERVER_ERROR, extractPath(request)));
         }
 
         // ============== HELPER METHODS ==============

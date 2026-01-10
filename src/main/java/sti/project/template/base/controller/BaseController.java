@@ -6,10 +6,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import sti.project.template.base.dto.ApiResponse;
+import sti.project.template.base.dto.ApiResponseFactory;
 import sti.project.template.base.dto.BaseResponseDTO;
 import sti.project.template.base.dto.PageDTO;
 import sti.project.template.base.entity.BaseEntity;
-import sti.project.template.base.i18n.MessageHelper;
 import sti.project.template.base.service.BaseService;
 
 import java.util.List;
@@ -25,11 +25,11 @@ import java.util.UUID;
 public abstract class BaseController<T extends BaseEntity, Res extends BaseResponseDTO, Req> {
 
     protected final BaseService<T, Res, Req> service;
-    protected final MessageHelper messageHelper;
+    protected final ApiResponseFactory responseFactory;
 
-    protected BaseController(BaseService<T, Res, Req> service, MessageHelper messageHelper) {
+    protected BaseController(BaseService<T, Res, Req> service, ApiResponseFactory responseFactory) {
         this.service = service;
-        this.messageHelper = messageHelper;
+        this.responseFactory = responseFactory;
     }
 
     @GetMapping
@@ -43,8 +43,7 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
             @Parameter(description = "Page size") @RequestParam(defaultValue = "10") int size,
             @Parameter(description = "Sort field") @RequestParam(defaultValue = "createdAt") String sortBy,
             @Parameter(description = "Sort direction") @RequestParam(defaultValue = "DESC") String sortDir) {
-        return ApiResponse.success(service.search(keyword, page, size, sortBy, sortDir),
-                messageHelper.getMessage("success.records_fetched"));
+        return responseFactory.success(service.search(keyword, page, size, sortBy, sortDir), "success.records_fetched");
     }
 
     @GetMapping("/all")
@@ -53,7 +52,7 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success")
     })
     public ApiResponse<List<Res>> getAll() {
-        return ApiResponse.success(service.getAll(), messageHelper.getMessage("success.records_fetched"));
+        return responseFactory.success(service.getAll(), "success.records_fetched");
     }
 
     @GetMapping("/{id}")
@@ -63,7 +62,7 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Not found")
     })
     public ApiResponse<Res> getById(@Parameter(description = "Record ID") @PathVariable UUID id) {
-        return ApiResponse.success(service.getById(id), messageHelper.getMessage("success.fetched"));
+        return responseFactory.success(service.getById(id), "success.fetched");
     }
 
     @PostMapping
@@ -73,7 +72,7 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Bad request")
     })
     public ApiResponse<Res> create(@Valid @RequestBody Req request) {
-        return ApiResponse.created(service.create(request), messageHelper.getMessage("success.created"));
+        return responseFactory.created(service.create(request));
     }
 
     @PutMapping("/{id}")
@@ -85,7 +84,7 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
     })
     public ApiResponse<Res> update(@Parameter(description = "Record ID") @PathVariable UUID id,
             @Valid @RequestBody Req request) {
-        return ApiResponse.success(service.update(id, request), messageHelper.getMessage("success.updated"));
+        return responseFactory.success(service.update(id, request), "success.updated");
     }
 
     @DeleteMapping("/{id}")
@@ -96,7 +95,7 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
     })
     public ApiResponse<Void> delete(@Parameter(description = "Record ID") @PathVariable UUID id) {
         service.delete(id);
-        return ApiResponse.success(null, messageHelper.getMessage("success.deleted"));
+        return responseFactory.success(null, "success.deleted");
     }
 
     @PatchMapping("/{id}/restore")
@@ -106,6 +105,6 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Not found")
     })
     public ApiResponse<Res> restore(@Parameter(description = "Record ID") @PathVariable UUID id) {
-        return ApiResponse.success(service.restore(id), messageHelper.getMessage("success.restored"));
+        return responseFactory.success(service.restore(id), "success.restored");
     }
 }

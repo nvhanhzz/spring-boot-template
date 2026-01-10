@@ -11,7 +11,8 @@ import sti.project.template.base.dto.BaseResponseDTO;
 import sti.project.template.base.dto.PageDTO;
 import sti.project.template.base.entity.BaseEntity;
 import sti.project.template.base.entity.EntityStatus;
-import sti.project.template.base.exception.NotFoundException;
+import sti.project.template.base.exception.AppException;
+import sti.project.template.base.exception.ErrorCode;
 import sti.project.template.base.mapper.BaseMapper;
 import sti.project.template.base.repository.BaseRepository;
 
@@ -46,7 +47,7 @@ public abstract class BaseService<T extends BaseEntity, Res extends BaseResponse
     @Transactional(readOnly = true)
     public Res getById(UUID id) {
         T entity = repository.findActiveById(id)
-                .orElseThrow(() -> new NotFoundException(entityClass, id));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
         return mapper.toResponse(entity);
     }
 
@@ -74,7 +75,7 @@ public abstract class BaseService<T extends BaseEntity, Res extends BaseResponse
     @Transactional
     public Res update(UUID id, Req request) {
         T entity = repository.findActiveById(id)
-                .orElseThrow(() -> new NotFoundException(entityClass, id));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
 
         beforeUpdate(entity, request);
         mapper.updateEntity(request, entity);
@@ -86,7 +87,7 @@ public abstract class BaseService<T extends BaseEntity, Res extends BaseResponse
     @Transactional
     public void delete(UUID id) {
         T entity = repository.findActiveById(id)
-                .orElseThrow(() -> new NotFoundException(entityClass, id));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
 
         beforeDelete(entity);
         entity.setStatus(EntityStatus.DELETED);
@@ -97,10 +98,10 @@ public abstract class BaseService<T extends BaseEntity, Res extends BaseResponse
     @Transactional
     public Res restore(UUID id) {
         T entity = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException(entityClass, id));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
 
         if (entity.getStatus() != EntityStatus.DELETED) {
-            throw new IllegalArgumentException("Entity is not deleted");
+            throw new AppException(ErrorCode.BAD_REQUEST);
         }
 
         entity.setStatus(EntityStatus.ACTIVE);

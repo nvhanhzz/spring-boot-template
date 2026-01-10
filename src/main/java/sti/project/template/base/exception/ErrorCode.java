@@ -46,7 +46,13 @@ public enum ErrorCode {
     MEDIA_NOT_FOUND(4006, "error.media_not_found", HttpStatus.NOT_FOUND),
 
     // Business logic errors (5000 - 5999)
-    CONFLICT(5001, "error.conflict", HttpStatus.CONFLICT);
+    CONFLICT(5001, "error.conflict", HttpStatus.CONFLICT),
+
+    // Database errors (6000 - 6999)
+    DUPLICATE_KEY(6001, "error.duplicate_key", HttpStatus.CONFLICT),
+    DATA_INTEGRITY_VIOLATION(6002, "error.data_integrity", HttpStatus.BAD_REQUEST),
+    OPTIMISTIC_LOCK_FAILURE(6003, "error.optimistic_lock", HttpStatus.CONFLICT),
+    DATABASE_ERROR(6004, "error.database", HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final int code;
     private final String messageKey; // i18n message key
