@@ -2,6 +2,7 @@ package sti.project.template.base.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -45,8 +46,8 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
     })
     public ApiResponse<PageDTO<Res>> search(
             @Parameter(description = "Filter by ID list (comma-separated)") @RequestParam(required = false) List<UUID> ids,
-            @Parameter(description = "Filter by status", schema = @io.swagger.v3.oas.annotations.media.Schema(allowableValues = {
-                    "ACTIVE", "INACTIVE" })) @RequestParam(required = false) EntityStatus status,
+            @Parameter(description = "Filter by status", schema = @Schema(allowableValues = { "ACTIVE",
+                    "INACTIVE" })) @RequestParam(required = false) EntityStatus status,
             @Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") @Min(0) int page,
             @Parameter(description = "Page size (max 1000)") @RequestParam(defaultValue = "10") @Min(1) @Max(1000) int size,
             @Parameter(description = "Sort field") @RequestParam(defaultValue = "createdAt") String sortBy,
