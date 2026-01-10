@@ -4,7 +4,6 @@ import sti.project.template.base.dto.BaseResponseDTO;
 import sti.project.template.base.dto.PageDTO;
 import sti.project.template.base.entity.BaseEntity;
 
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -45,4 +44,9 @@ public interface BaseService<T extends BaseEntity, Res extends BaseResponseDTO, 
      * Restore a deleted entity
      */
     Res restore(UUID id);
+
+    /**
+     * Toggle active/inactive status
+     */
+    Res toggleActive(UUID id);
 }

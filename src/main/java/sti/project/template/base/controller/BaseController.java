@@ -12,7 +12,6 @@ import sti.project.template.base.dto.PageDTO;
 import sti.project.template.base.entity.BaseEntity;
 import sti.project.template.base.service.BaseService;
 
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -97,5 +96,15 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
     })
     public ApiResponse<Res> restore(@Parameter(description = "Record ID") @PathVariable UUID id) {
         return responseFactory.success(service.restore(id), "success.restored");
+    }
+
+    @PatchMapping("/{id}/toggle-active")
+    @Operation(summary = "Toggle active status", description = "Toggle between active and inactive status")
+    @ApiResponses({
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Not found")
+    })
+    public ApiResponse<Res> toggleActive(@Parameter(description = "Record ID") @PathVariable UUID id) {
+        return responseFactory.success(service.toggleActive(id), "success.updated");
     }
 }

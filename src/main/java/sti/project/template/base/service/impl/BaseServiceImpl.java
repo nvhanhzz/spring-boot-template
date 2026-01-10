@@ -113,6 +113,25 @@ public abstract class BaseServiceImpl<T extends BaseEntity, Res extends BaseResp
         return mapper.toResponse(saved);
     }
 
+    @Override
+    @Transactional
+    public Res toggleActive(UUID id) {
+        T entity = repository.findActiveById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+
+        if (entity.getStatus() == EntityStatus.ACTIVE) {
+            entity.setStatus(EntityStatus.INACTIVE);
+        } else if (entity.getStatus() == EntityStatus.INACTIVE) {
+            entity.setStatus(EntityStatus.ACTIVE);
+        } else {
+            throw new AppException(ErrorCode.BAD_REQUEST);
+        }
+
+        T saved = repository.save(entity);
+        afterToggleActive(saved);
+        return mapper.toResponse(saved);
+    }
+
     protected Specification<T> buildSearchSpecification(String keyword) {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -157,5 +176,8 @@ public abstract class BaseServiceImpl<T extends BaseEntity, Res extends BaseResp
     }
 
     protected void afterRestore(T entity) {
+    }
+
+    protected void afterToggleActive(T entity) {
     }
 }
