@@ -48,7 +48,7 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
     protected abstract String getResourceName();
 
     @GetMapping
-    @PreAuthorize("hasPermission(null, @baseControllerHelper.getPermission(#root.this, 'view'))")
+//    @PreAuthorize("hasPermission(null, @baseControllerHelper.getPermission(#root.this, 'view'))")
     @Operation(summary = "Search records", description = "Search and paginate records with dynamic field filters and ID list")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success")

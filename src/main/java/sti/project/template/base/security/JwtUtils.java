@@ -1,6 +1,9 @@
 package sti.project.template.base.security;
 
-import com.nimbusds.jose.*;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSObject;
+import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
@@ -13,68 +16,69 @@ import sti.project.template.business.entity.User;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
-/**
- * Utility class for JWT token generation and validation.
- */
 @Slf4j
 @Component
 public class JwtUtils {
+
+    public static final String TOKEN_TYPE_ACCESS = "access";
+    public static final String TOKEN_TYPE_REFRESH = "refresh";
+    public static final String TOKEN_TYPE_CLAIM = "token_type";
 
     @Value("${app.security.jwt.secret-key}")
     private String secretKey;
 
     @Value("${app.security.jwt.access-token-expiration:3600}")
-    private long accessTokenExpiration; // in seconds
+    private long accessTokenExpiration;
 
     @Value("${app.security.jwt.refresh-token-expiration:604800}")
-    private long refreshTokenExpiration; // in seconds (default 7 days)
+    private long refreshTokenExpiration;
 
     @Value("${app.security.jwt.authorities-claim-name:authorities}")
     private String authoritiesClaimName;
 
-    /**
-     * Generate access token for user
-     */
     public String generateAccessToken(User user) {
-        return generateToken(user, accessTokenExpiration);
+        return generateToken(user, accessTokenExpiration, TOKEN_TYPE_ACCESS, true);
     }
 
-    /**
-     * Generate refresh token for user
-     */
     public String generateRefreshToken(User user) {
-        return generateToken(user, refreshTokenExpiration);
+        return generateToken(user, refreshTokenExpiration, TOKEN_TYPE_REFRESH, false);
     }
 
-    private String generateToken(User user, long expirationSeconds) {
+    private String generateToken(User user, long expirationSeconds, String tokenType, boolean includeAuthorities) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
         Instant now = Instant.now();
         Instant expiration = now.plus(expirationSeconds, ChronoUnit.SECONDS);
 
-        // Build authorities from roles and permissions
-        Set<String> authorities = buildAuthorities(user);
-
-        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+        JWTClaimsSet.Builder claimsBuilder = new JWTClaimsSet.Builder()
                 .subject(user.getId().toString())
                 .issuer("template-api")
                 .issueTime(Date.from(now))
                 .expirationTime(Date.from(expiration))
                 .jwtID(UUID.randomUUID().toString())
+                .claim(TOKEN_TYPE_CLAIM, tokenType)
                 .claim("email", user.getEmail())
-                .claim("name", user.getName())
-                .claim(authoritiesClaimName, authorities)
-                .build();
+                .claim("name", user.getName());
 
+        if (includeAuthorities) {
+            Set<String> authorities = buildAuthorities(user);
+            claimsBuilder.claim(authoritiesClaimName, authorities);
+        }
+
+        JWTClaimsSet claimsSet = claimsBuilder.build();
         Payload payload = new Payload(claimsSet.toJSONObject());
         JWSObject jwsObject = new JWSObject(header, payload);
 
         try {
             jwsObject.sign(new MACSigner(secretKey.getBytes()));
             return jwsObject.serialize();
-        } catch (JOSEException e) {
+        } catch (Exception e) {
             log.error("Cannot create token", e);
             throw new RuntimeException("Cannot create token", e);
         }
@@ -85,10 +89,8 @@ public class JwtUtils {
 
         if (user.getRoles() != null) {
             for (Role role : user.getRoles()) {
-                // Add role with ROLE_ prefix
                 authorities.add("ROLE_" + role.getName());
 
-                // Add permissions
                 if (role.getPermissions() != null) {
                     for (Permission permission : role.getPermissions()) {
                         authorities.add(permission.getName());
@@ -100,9 +102,6 @@ public class JwtUtils {
         return authorities;
     }
 
-    /**
-     * Get user ID from token
-     */
     public UUID getUserIdFromToken(String token) {
         try {
             SignedJWT signedJWT = SignedJWT.parse(token);
@@ -113,9 +112,16 @@ public class JwtUtils {
         }
     }
 
-    /**
-     * Get authorities from token
-     */
+    public String getTokenType(String token) {
+        try {
+            SignedJWT signedJWT = SignedJWT.parse(token);
+            return (String) signedJWT.getJWTClaimsSet().getClaim(TOKEN_TYPE_CLAIM);
+        } catch (Exception e) {
+            log.error("Cannot get token type from token", e);
+            return null;
+        }
+    }
+
     @SuppressWarnings("unchecked")
     public Set<String> getAuthoritiesFromToken(String token) {
         try {

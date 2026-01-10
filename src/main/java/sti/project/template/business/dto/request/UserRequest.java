@@ -11,9 +11,6 @@ import java.time.LocalDate;
 import java.util.Set;
 import java.util.UUID;
 
-/**
- * User request DTO for create/update operations.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

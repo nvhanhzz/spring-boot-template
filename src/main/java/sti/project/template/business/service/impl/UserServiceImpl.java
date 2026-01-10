@@ -1,7 +1,15 @@
 package sti.project.template.business.service.impl;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import sti.project.template.base.dto.PageDTO;
+import sti.project.template.base.dto.SearchCriteria;
 import sti.project.template.base.entity.EntityStatus;
 import sti.project.template.base.exception.AppException;
 import sti.project.template.base.exception.ErrorCode;
@@ -16,6 +24,7 @@ import sti.project.template.business.repository.UserRepository;
 import sti.project.template.business.service.UserService;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -26,11 +35,13 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserResponse, UserReq
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
     public UserServiceImpl(UserRepository repository, UserMapper mapper,
             RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         super(repository, mapper, User.class);
         this.userRepository = repository;
+        this.userMapper = mapper;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -38,6 +49,30 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserResponse, UserReq
     @Override
     protected String[] getSearchFields() {
         return new String[] { "name", "email" };
+    }
+
+    /**
+     * Override search to use 2-query pattern for optimal pagination with JOIN
+     * FETCH.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public PageDTO<UserResponse> search(SearchCriteria criteria) {
+        Sort sort = Sort.by(Sort.Direction.fromString(criteria.getSortDir()), criteria.getSortBy());
+        Pageable pageable = PageRequest.of(criteria.getPage(), criteria.getSize(), sort);
+
+        // Query 1: Get IDs with pagination
+        Specification<User> spec = buildSearchSpecification(criteria);
+        Page<UUID> idPage = userRepository.findAllIds(spec, pageable);
+
+        if (idPage.isEmpty()) {
+            return PageDTO.of(List.of(), 0L);
+        }
+
+        // Query 2: Fetch entities with relationships by IDs
+        List<User> users = userRepository.findByIdsWithRoles(idPage.getContent());
+
+        return PageDTO.of(userMapper.toResponseList(users), idPage.getTotalElements());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package sti.project.template.base.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import sti.project.template.base.entity.EntityStatus;
 
@@ -11,6 +12,7 @@ import java.util.UUID;
  * All response DTOs should extend this class.
  */
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class BaseResponseDTO {
     private UUID id;
     private LocalDateTime createdAt;

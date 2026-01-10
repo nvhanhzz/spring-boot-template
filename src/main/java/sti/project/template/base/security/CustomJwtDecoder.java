@@ -12,9 +12,6 @@ import org.springframework.util.StringUtils;
 import java.text.ParseException;
 import java.util.Date;
 
-/**
- * Custom JWT decoder using HMAC secret key for verification.
- */
 public class CustomJwtDecoder implements JwtDecoder {
 
     private final JWSVerifier verifier;
@@ -36,18 +33,21 @@ public class CustomJwtDecoder implements JwtDecoder {
         try {
             SignedJWT signedJWT = SignedJWT.parse(token);
 
-            // Verify signature
             if (!signedJWT.verify(this.verifier)) {
                 throw new BadJwtException("Invalid JWT signature.");
             }
 
-            // Check expiration
             Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
             if (expirationTime != null && expirationTime.before(new Date())) {
                 throw new BadJwtException("JWT has expired.");
             }
 
-            // Extract claims if valid
+            // Verify token type - only access tokens allowed for API access
+            String tokenType = (String) signedJWT.getJWTClaimsSet().getClaim(JwtUtils.TOKEN_TYPE_CLAIM);
+            if (!JwtUtils.TOKEN_TYPE_ACCESS.equals(tokenType)) {
+                throw new BadJwtException("Invalid token type. Only access tokens are allowed.");
+            }
+
             return new Jwt(token,
                     signedJWT.getJWTClaimsSet().getIssueTime().toInstant(),
                     signedJWT.getJWTClaimsSet().getExpirationTime().toInstant(),
@@ -56,6 +56,8 @@ public class CustomJwtDecoder implements JwtDecoder {
 
         } catch (ParseException e) {
             throw new BadJwtException("Invalid JWT token format.", e);
+        } catch (BadJwtException e) {
+            throw e;
         } catch (Exception e) {
             throw new JwtException("An error occurred during JWT decoding.", e);
         }

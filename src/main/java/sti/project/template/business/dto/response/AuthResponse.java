@@ -5,9 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Authentication response DTO.
- */
 @Data
 @Builder
 @NoArgsConstructor

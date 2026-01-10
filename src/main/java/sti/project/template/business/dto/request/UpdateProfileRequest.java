@@ -7,9 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
-/**
- * Update profile request DTO for current user.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

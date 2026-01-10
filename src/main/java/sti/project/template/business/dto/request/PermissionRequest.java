@@ -6,9 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * Permission request DTO for create/update operations.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

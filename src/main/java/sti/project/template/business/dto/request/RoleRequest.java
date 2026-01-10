@@ -9,9 +9,6 @@ import lombok.NoArgsConstructor;
 import java.util.Set;
 import java.util.UUID;
 
-/**
- * Role request DTO for create/update operations.
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
