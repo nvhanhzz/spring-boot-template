@@ -19,4 +19,9 @@ public class PermissionController extends BaseController<Permission, PermissionR
     protected PermissionController(PermissionService service, ApiResponseFactory responseFactory) {
         super(service, responseFactory);
     }
+
+    @Override
+    protected String getResourceName() {
+        return "permission";
+    }
 }

@@ -52,7 +52,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserResponse, UserReq
         if (!entity.getEmail().equals(request.getEmail())) {
             validateEmailUnique(request.getEmail(), entity.getEmail());
         }
-        // Update password only if provided and different
+
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
             entity.setPassword(passwordEncoder.encode(request.getPassword()));
         }

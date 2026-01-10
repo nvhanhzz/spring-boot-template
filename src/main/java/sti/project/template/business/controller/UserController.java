@@ -19,4 +19,9 @@ public class UserController extends BaseController<User, UserResponse, UserReque
     protected UserController(UserService service, ApiResponseFactory responseFactory) {
         super(service, responseFactory);
     }
+
+    @Override
+    protected String getResourceName() {
+        return "user";
+    }
 }

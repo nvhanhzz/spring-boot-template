@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import sti.project.template.base.dto.ApiResponse;
 import sti.project.template.base.dto.ApiResponseFactory;
@@ -14,17 +15,18 @@ import sti.project.template.base.dto.BaseResponseDTO;
 import sti.project.template.base.dto.PageDTO;
 import sti.project.template.base.dto.SearchCriteria;
 import sti.project.template.base.entity.BaseEntity;
+import sti.project.template.base.entity.EntityStatus;
 import sti.project.template.base.service.BaseService;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import sti.project.template.base.entity.EntityStatus;
-
 /**
- * Abstract base controller with common CRUD endpoints.
- * 
+ * Abstract base controller with common CRUD endpoints and permission checks.
+ * Permission format: {resourceName}.{action}
+ * Example: role.view, role.create, user.update
+ *
  * @param <T>   Entity type
  * @param <Res> Response DTO type
  * @param <Req> Request DTO type
@@ -39,7 +41,14 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
         this.responseFactory = responseFactory;
     }
 
+    /**
+     * Get the resource name for permission checks.
+     * Example: "role", "user", "permission"
+     */
+    protected abstract String getResourceName();
+
     @GetMapping
+    @PreAuthorize("hasPermission(null, @baseControllerHelper.getPermission(#root.this, 'view'))")
     @Operation(summary = "Search records", description = "Search and paginate records with dynamic field filters and ID list")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success")
@@ -75,6 +84,7 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasPermission(null, @baseControllerHelper.getPermission(#root.this, 'view'))")
     @Operation(summary = "Get by ID", description = "Get a single record by ID")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
@@ -85,6 +95,7 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
     }
 
     @PostMapping
+    @PreAuthorize("hasPermission(null, @baseControllerHelper.getPermission(#root.this, 'create'))")
     @Operation(summary = "Create record", description = "Create a new record")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Created"),
@@ -95,6 +106,7 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasPermission(null, @baseControllerHelper.getPermission(#root.this, 'update'))")
     @Operation(summary = "Update record", description = "Update an existing record")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
@@ -107,6 +119,7 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasPermission(null, @baseControllerHelper.getPermission(#root.this, 'delete'))")
     @Operation(summary = "Delete record", description = "Soft delete a record")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
@@ -118,6 +131,7 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
     }
 
     @PatchMapping("/{id}/restore")
+    @PreAuthorize("hasPermission(null, @baseControllerHelper.getPermission(#root.this, 'restore'))")
     @Operation(summary = "Restore record", description = "Restore a soft-deleted record")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),
@@ -128,6 +142,7 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
     }
 
     @PatchMapping("/{id}/toggle-active")
+    @PreAuthorize("hasPermission(null, @baseControllerHelper.getPermission(#root.this, 'update'))")
     @Operation(summary = "Toggle active status", description = "Toggle between active and inactive status")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success"),

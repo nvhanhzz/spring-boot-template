@@ -38,5 +38,31 @@ logging:
 app:
   security:
     jwt:
-      secret-key: ${JWT_SECRET:my-super-secret-key-for-development-only-must-be-at-least-32-characters}
+      secret-key: my-super-secret-key-for-development-only-must-be-at-least-32-characters
       authorities-claim-name: authorities
+      access-token-expiration: 3600       # 1 hour (in seconds)
+      refresh-token-expiration: 604800    # 7 days (in seconds)
+
+  # Data Initializer - Auto create roles and users on startup
+  initializer:
+    enabled: true
+    roles:
+      - name: ADMIN
+        description: Administrator role with full access
+      - name: USER
+        description: Standard user role
+      - name: MANAGER
+        description: Manager role with limited admin access
+    users:
+      - name: Admin
+        email: admin@example.com
+        password: Admin@123
+        phone: "0123456789"
+        roles:
+          - ADMIN
+      - name: Default User
+        email: user@example.com
+        password: User@123
+        phone: "0987654321"
+        roles:
+          - USER

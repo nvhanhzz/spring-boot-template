@@ -19,4 +19,9 @@ public class RoleController extends BaseController<Role, RoleResponse, RoleReque
     protected RoleController(RoleService service, ApiResponseFactory responseFactory) {
         super(service, responseFactory);
     }
+
+    @Override
+    protected String getResourceName() {
+        return "role";
+    }
 }
