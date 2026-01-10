@@ -46,15 +46,6 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
         return responseFactory.success(service.search(keyword, page, size, sortBy, sortDir), "success.records_fetched");
     }
 
-    @GetMapping("/all")
-    @Operation(summary = "Get all records", description = "Get all active records without pagination")
-    @ApiResponses({
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success")
-    })
-    public ApiResponse<List<Res>> getAll() {
-        return responseFactory.success(service.getAll(), "success.records_fetched");
-    }
-
     @GetMapping("/{id}")
     @Operation(summary = "Get by ID", description = "Get a single record by ID")
     @ApiResponses({

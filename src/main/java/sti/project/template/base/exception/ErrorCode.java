@@ -47,6 +47,7 @@ public enum ErrorCode {
 
     // Business logic errors (5000 - 5999)
     CONFLICT(5001, "error.conflict", HttpStatus.CONFLICT),
+    NAME_EXISTS(5002, "error.name_exists", HttpStatus.BAD_REQUEST),
 
     // Database errors (6000 - 6999)
     DUPLICATE_KEY(6001, "error.duplicate_key", HttpStatus.CONFLICT),
