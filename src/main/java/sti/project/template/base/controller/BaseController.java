@@ -9,10 +9,15 @@ import sti.project.template.base.dto.ApiResponse;
 import sti.project.template.base.dto.ApiResponseFactory;
 import sti.project.template.base.dto.BaseResponseDTO;
 import sti.project.template.base.dto.PageDTO;
+import sti.project.template.base.dto.SearchCriteria;
 import sti.project.template.base.entity.BaseEntity;
 import sti.project.template.base.service.BaseService;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+
+import sti.project.template.base.entity.EntityStatus;
 
 /**
  * Abstract base controller with common CRUD endpoints.
@@ -32,17 +37,38 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
     }
 
     @GetMapping
-    @Operation(summary = "Search records", description = "Search and paginate records with keyword filter")
+    @Operation(summary = "Search records", description = "Search and paginate records with dynamic field filters and ID list")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success")
     })
     public ApiResponse<PageDTO<Res>> search(
-            @Parameter(description = "Search keyword") @RequestParam(required = false) String keyword,
+            @Parameter(description = "Filter by ID list (comma-separated)") @RequestParam(required = false) List<UUID> ids,
+            @Parameter(description = "Filter by status", schema = @io.swagger.v3.oas.annotations.media.Schema(allowableValues = {
+                    "ACTIVE", "INACTIVE" })) @RequestParam(required = false) EntityStatus status,
             @Parameter(description = "Page number (0-based)") @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "Page size") @RequestParam(defaultValue = "10") int size,
             @Parameter(description = "Sort field") @RequestParam(defaultValue = "createdAt") String sortBy,
-            @Parameter(description = "Sort direction") @RequestParam(defaultValue = "DESC") String sortDir) {
-        return responseFactory.success(service.search(keyword, page, size, sortBy, sortDir), "success.records_fetched");
+            @Parameter(description = "Sort direction") @RequestParam(defaultValue = "DESC") String sortDir,
+            @Parameter(hidden = true) @RequestParam Map<String, String> allParams) {
+
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.setIds(ids);
+        criteria.setStatus(status);
+        criteria.setPage(page);
+        criteria.setSize(size);
+        criteria.setSortBy(sortBy);
+        criteria.setSortDir(sortDir);
+
+        Map<String, String> fieldParams = new java.util.HashMap<>(allParams);
+        fieldParams.remove("ids");
+        fieldParams.remove("status");
+        fieldParams.remove("page");
+        fieldParams.remove("size");
+        fieldParams.remove("sortBy");
+        fieldParams.remove("sortDir");
+        criteria.setFields(fieldParams);
+
+        return responseFactory.success(service.search(criteria), "success.records_fetched");
     }
 
     @GetMapping("/{id}")

@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import sti.project.template.base.dto.BaseResponseDTO;
 import sti.project.template.base.dto.PageDTO;
+import sti.project.template.base.dto.SearchCriteria;
 import sti.project.template.base.entity.BaseEntity;
 import sti.project.template.base.entity.EntityStatus;
 import sti.project.template.base.exception.AppException;
@@ -18,7 +19,9 @@ import sti.project.template.base.repository.BaseRepository;
 import sti.project.template.base.service.BaseService;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -51,15 +54,52 @@ public abstract class BaseServiceImpl<T extends BaseEntity, Res extends BaseResp
 
     @Override
     @Transactional(readOnly = true)
-    public PageDTO<Res> search(String keyword, int page, int size, String sortBy, String sortDir) {
-        Sort sort = Sort.by(Sort.Direction.fromString(sortDir), sortBy);
-        Pageable pageable = PageRequest.of(page, size, sort);
+    public PageDTO<Res> search(SearchCriteria criteria) {
+        Sort sort = Sort.by(Sort.Direction.fromString(criteria.getSortDir()), criteria.getSortBy());
+        Pageable pageable = PageRequest.of(criteria.getPage(), criteria.getSize(), sort);
 
-        Specification<T> spec = buildSearchSpecification(keyword);
+        Specification<T> spec = buildSearchSpecification(criteria);
         Page<T> pageResult = repository.findAll(spec, pageable);
 
         List<Res> data = mapper.toResponseList(pageResult.getContent());
         return PageDTO.of(data, pageResult.getTotalElements());
+    }
+
+    @Override
+    public String[] getSearchableFields() {
+        return getSearchFields();
+    }
+
+    protected Specification<T> buildSearchSpecification(SearchCriteria criteria) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // Status filter: only allow ACTIVE/INACTIVE, never show DELETED
+            if (criteria.getStatus() != null && criteria.getStatus() != EntityStatus.DELETED) {
+                predicates.add(cb.equal(root.get("status"), criteria.getStatus()));
+            } else {
+                predicates.add(cb.notEqual(root.get("status"), EntityStatus.DELETED));
+            }
+
+            if (criteria.getIds() != null && !criteria.getIds().isEmpty()) {
+                predicates.add(root.get("id").in(criteria.getIds()));
+            }
+
+            Map<String, String> fields = criteria.getFields();
+            if (fields != null && !fields.isEmpty()) {
+                List<String> allowedFields = Arrays.asList(getSearchFields());
+                for (Map.Entry<String, String> entry : fields.entrySet()) {
+                    String fieldName = entry.getKey();
+                    String fieldValue = entry.getValue();
+                    if (allowedFields.contains(fieldName) && fieldValue != null && !fieldValue.trim().isEmpty()) {
+                        String pattern = "%" + fieldValue.toLowerCase() + "%";
+                        predicates.add(cb.like(cb.lower(root.get(fieldName).as(String.class)), pattern));
+                    }
+                }
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
     }
 
     @Override
@@ -130,27 +170,6 @@ public abstract class BaseServiceImpl<T extends BaseEntity, Res extends BaseResp
         T saved = repository.save(entity);
         afterToggleActive(saved);
         return mapper.toResponse(saved);
-    }
-
-    protected Specification<T> buildSearchSpecification(String keyword) {
-        return (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            predicates.add(cb.notEqual(root.get("status"), EntityStatus.DELETED));
-
-            if (keyword != null && !keyword.trim().isEmpty()) {
-                String[] searchFields = getSearchFields();
-                if (searchFields.length > 0) {
-                    List<Predicate> keywordPredicates = new ArrayList<>();
-                    String pattern = "%" + keyword.toLowerCase() + "%";
-                    for (String field : searchFields) {
-                        keywordPredicates.add(cb.like(cb.lower(root.get(field).as(String.class)), pattern));
-                    }
-                    predicates.add(cb.or(keywordPredicates.toArray(new Predicate[0])));
-                }
-            }
-
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
     }
 
     protected String[] getSearchFields() {
