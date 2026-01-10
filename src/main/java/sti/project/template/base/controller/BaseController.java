@@ -95,7 +95,7 @@ public abstract class BaseController<T extends BaseEntity, Res extends BaseRespo
     }
 
     @PostMapping
-    @PreAuthorize("hasPermission(null, @baseControllerHelper.getPermission(#root.this, 'create'))")
+//    @PreAuthorize("hasPermission(null, @baseControllerHelper.getPermission(#root.this, 'create'))")
     @Operation(summary = "Create record", description = "Create a new record")
     @ApiResponses({
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Created"),
