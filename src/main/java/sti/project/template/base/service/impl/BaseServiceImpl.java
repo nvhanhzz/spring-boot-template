@@ -74,7 +74,6 @@ public abstract class BaseServiceImpl<T extends BaseEntity, Res extends BaseResp
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // Status filter: only allow ACTIVE/INACTIVE, never show DELETED
             if (criteria.getStatus() != null && criteria.getStatus() != EntityStatus.DELETED) {
                 predicates.add(cb.equal(root.get("status"), criteria.getStatus()));
             } else {
