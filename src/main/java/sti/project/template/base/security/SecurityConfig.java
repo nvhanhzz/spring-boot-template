@@ -32,6 +32,7 @@ public class SecurityConfig {
 
     private static final String[] SWAGGER_ENDPOINTS = {
             "/v3/api-docs/**",
+            "/api-docs/**",
             "/swagger-ui.html",
             "/swagger-ui/**",
             "/swagger-resources/**",
@@ -40,6 +41,7 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_ENDPOINTS = {
             "/api/v1/auth/**",
+            "/api/examples/**", // Example API - remove in production if needed
             "/actuator/health",
             "/actuator/info"
     };

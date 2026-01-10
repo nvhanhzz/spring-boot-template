@@ -1,6 +1,7 @@
 package sti.project.template.base.exception;
 
 import jakarta.validation.ConstraintViolationException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import org.springframework.web.context.request.async.AsyncRequestNotUsableExcept
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import sti.project.template.base.dto.ApiResponse;
 import sti.project.template.base.dto.FieldErrorDetail;
+import sti.project.template.base.i18n.MessageHelper;
 
 import java.io.IOException;
 import java.util.List;
@@ -25,11 +27,20 @@ import java.util.stream.Collectors;
 
 /**
  * Global exception handler for REST controllers.
- * Provides consistent error responses across all endpoints.
+ * Provides consistent, localized error responses across all endpoints.
  */
 @Slf4j
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
+
+        private final MessageHelper messageHelper;
+
+        // ============== HELPER METHOD ==============
+
+        private String getLocalizedMessage(ErrorCode errorCode) {
+                return messageHelper.getMessage(errorCode.getMessageKey());
+        }
 
         // ============== SECURITY EXCEPTIONS ==============
 
@@ -38,7 +49,8 @@ public class GlobalExceptionHandler {
                         AuthorizationDeniedException ex, WebRequest request) {
                 log.warn("Authorization denied: {} at path: {}", ex.getMessage(), extractPath(request));
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                                .body(ApiResponse.fromErrorCode(ErrorCode.FORBIDDEN, extractPath(request)));
+                                .body(ApiResponse.error(ErrorCode.FORBIDDEN.getCode(),
+                                                getLocalizedMessage(ErrorCode.FORBIDDEN), extractPath(request)));
         }
 
         @ExceptionHandler(AccessDeniedException.class)

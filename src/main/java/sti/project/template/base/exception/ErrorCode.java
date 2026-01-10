@@ -6,55 +6,55 @@ import org.springframework.http.HttpStatusCode;
 
 /**
  * Enum defining all error codes used throughout the application.
- * Grouped by category for easy management.
+ * Uses i18n message keys for localization support.
  */
 @Getter
 public enum ErrorCode {
     // General errors (1000 - 1999)
-    UNCATEGORIZED_EXCEPTION(1000, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
-    UNAUTHENTICATED(1001, "Unauthenticated", HttpStatus.UNAUTHORIZED),
-    FORBIDDEN(1002, "You do not have permission", HttpStatus.FORBIDDEN),
-    NOT_FOUND(1003, "Resource not found", HttpStatus.NOT_FOUND),
-    BAD_REQUEST(1004, "Bad request", HttpStatus.BAD_REQUEST),
-    INTERNAL_SERVER_ERROR(1005, "Internal server error", HttpStatus.INTERNAL_SERVER_ERROR),
-    ALREADY_EXISTS(1006, "Already exists", HttpStatus.BAD_REQUEST),
+    UNCATEGORIZED_EXCEPTION(1000, "error.uncategorized", HttpStatus.INTERNAL_SERVER_ERROR),
+    UNAUTHENTICATED(1001, "error.unauthenticated", HttpStatus.UNAUTHORIZED),
+    FORBIDDEN(1002, "error.forbidden", HttpStatus.FORBIDDEN),
+    NOT_FOUND(1003, "error.not_found", HttpStatus.NOT_FOUND),
+    BAD_REQUEST(1004, "error.bad_request", HttpStatus.BAD_REQUEST),
+    INTERNAL_SERVER_ERROR(1005, "error.internal_server_error", HttpStatus.INTERNAL_SERVER_ERROR),
+    ALREADY_EXISTS(1006, "error.already_exists", HttpStatus.BAD_REQUEST),
 
     // Auth errors (2000 - 2999)
-    INVALID_LOGIN_CREDENTIALS(2001, "Invalid login credentials", HttpStatus.BAD_REQUEST),
-    USER_NOT_EXISTED(2002, "User does not exist", HttpStatus.NOT_FOUND),
-    EMAIL_ALREADY_EXISTS(2003, "Email already exists", HttpStatus.BAD_REQUEST),
-    USERNAME_ALREADY_EXISTS(2004, "Username already exists", HttpStatus.BAD_REQUEST),
-    USER_NOT_ACTIVATED(2005, "User not active", HttpStatus.BAD_REQUEST),
-    TOKEN_EXPIRED(2006, "Token expired", HttpStatus.UNAUTHORIZED),
-    INVALID_TOKEN(2007, "Invalid token", HttpStatus.UNAUTHORIZED),
+    INVALID_LOGIN_CREDENTIALS(2001, "error.invalid_credentials", HttpStatus.BAD_REQUEST),
+    USER_NOT_EXISTED(2002, "error.user_not_found", HttpStatus.NOT_FOUND),
+    EMAIL_ALREADY_EXISTS(2003, "error.email_exists", HttpStatus.BAD_REQUEST),
+    USERNAME_ALREADY_EXISTS(2004, "error.username_exists", HttpStatus.BAD_REQUEST),
+    USER_NOT_ACTIVATED(2005, "error.user_inactive", HttpStatus.BAD_REQUEST),
+    TOKEN_EXPIRED(2006, "error.token_expired", HttpStatus.UNAUTHORIZED),
+    INVALID_TOKEN(2007, "error.invalid_token", HttpStatus.UNAUTHORIZED),
 
     // Validation errors (3000 - 3999)
-    VALIDATION_FAILED(3001, "Validation failed", HttpStatus.BAD_REQUEST),
-    FIELD_REQUIRED(3002, "A required field is missing", HttpStatus.BAD_REQUEST),
-    INVALID_PARAM(3003, "Invalid parameter", HttpStatus.BAD_REQUEST),
-    INVALID_EMAIL_FORMAT(3004, "Invalid email format", HttpStatus.BAD_REQUEST),
-    INVALID_PASSWORD_FORMAT(3005, "Invalid password format", HttpStatus.BAD_REQUEST),
-    CONSTRAINT_VIOLATION(3006, "Database constraint violation", HttpStatus.BAD_REQUEST),
-    INVALID_DATE(3007, "Invalid date format or value", HttpStatus.BAD_REQUEST),
-    INVALID_JSON_FORMAT(3008, "Invalid JSON format", HttpStatus.BAD_REQUEST),
+    VALIDATION_FAILED(3001, "error.validation_failed", HttpStatus.BAD_REQUEST),
+    FIELD_REQUIRED(3002, "error.field_required", HttpStatus.BAD_REQUEST),
+    INVALID_PARAM(3003, "error.invalid_param", HttpStatus.BAD_REQUEST),
+    INVALID_EMAIL_FORMAT(3004, "error.invalid_email", HttpStatus.BAD_REQUEST),
+    INVALID_PASSWORD_FORMAT(3005, "error.invalid_password", HttpStatus.BAD_REQUEST),
+    CONSTRAINT_VIOLATION(3006, "error.constraint_violation", HttpStatus.BAD_REQUEST),
+    INVALID_DATE(3007, "error.invalid_date", HttpStatus.BAD_REQUEST),
+    INVALID_JSON_FORMAT(3008, "error.invalid_json_format", HttpStatus.BAD_REQUEST),
 
     // File/Media errors (4000 - 4999)
-    MEDIA_UPLOAD_FAILED(4001, "Media upload failed", HttpStatus.INTERNAL_SERVER_ERROR),
-    INVALID_FILE(4002, "Invalid file type or empty", HttpStatus.BAD_REQUEST),
-    FILE_TOO_LARGE(4003, "File size exceeds the allowed limit", HttpStatus.PAYLOAD_TOO_LARGE),
-    UNSUPPORTED_MEDIA_FORMAT(4005, "Unsupported media format", HttpStatus.UNSUPPORTED_MEDIA_TYPE),
-    MEDIA_NOT_FOUND(4006, "Media resource not found", HttpStatus.NOT_FOUND),
+    MEDIA_UPLOAD_FAILED(4001, "error.file_upload_failed", HttpStatus.INTERNAL_SERVER_ERROR),
+    INVALID_FILE(4002, "error.invalid_file", HttpStatus.BAD_REQUEST),
+    FILE_TOO_LARGE(4003, "error.file_too_large", HttpStatus.PAYLOAD_TOO_LARGE),
+    UNSUPPORTED_MEDIA_FORMAT(4005, "error.unsupported_file_type", HttpStatus.UNSUPPORTED_MEDIA_TYPE),
+    MEDIA_NOT_FOUND(4006, "error.media_not_found", HttpStatus.NOT_FOUND),
 
     // Business logic errors (5000 - 5999)
-    CONFLICT(5001, "Conflict with existing data", HttpStatus.CONFLICT);
+    CONFLICT(5001, "error.conflict", HttpStatus.CONFLICT);
 
     private final int code;
-    private final String message;
+    private final String messageKey; // i18n message key
     private final HttpStatusCode statusCode;
 
-    ErrorCode(int code, String message, HttpStatusCode statusCode) {
+    ErrorCode(int code, String messageKey, HttpStatusCode statusCode) {
         this.code = code;
-        this.message = message;
+        this.messageKey = messageKey;
         this.statusCode = statusCode;
     }
 }

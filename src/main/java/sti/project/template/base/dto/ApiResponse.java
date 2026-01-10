@@ -1,5 +1,6 @@
 package sti.project.template.base.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -30,6 +31,7 @@ public class ApiResponse<T> {
 
     String path;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     LocalDateTime timestamp;
 
     List<FieldErrorDetail> fieldErrors;
@@ -112,7 +114,7 @@ public class ApiResponse<T> {
     public static <T> ApiResponse<T> fromErrorCode(ErrorCode errorCode, String path) {
         return ApiResponse.<T>builder()
                 .status(errorCode.getCode())
-                .message(errorCode.getMessage())
+                .message(errorCode.getMessageKey())
                 .path(path)
                 .timestamp(LocalDateTime.now())
                 .build();
