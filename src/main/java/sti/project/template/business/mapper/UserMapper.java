@@ -1,10 +1,7 @@
 package sti.project.template.business.mapper;
 
-import org.mapstruct.IterableMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.Named;
+import org.mapstruct.*;
+import sti.project.template.base.mapper.AuditUserMapper;
 import sti.project.template.base.mapper.BaseMapper;
 import sti.project.template.business.dto.request.UserRequest;
 import sti.project.template.business.dto.response.RoleResponse;
@@ -14,11 +11,13 @@ import sti.project.template.business.entity.User;
 
 import java.util.Set;
 
-@Mapper(config = BaseMapper.class, uses = { RoleMapper.class })
+@Mapper(config = BaseMapper.class, uses = { AuditUserMapper.class, RoleMapper.class })
 public abstract class UserMapper extends BaseMapper<User, UserResponse, UserRequest> {
 
     @Override
     @Mapping(target = "roles", qualifiedByName = "toSimpleRoles")
+    @Mapping(target = "createdByUser", source = "createdBy")
+    @Mapping(target = "updatedByUser", source = "updatedBy")
     public abstract UserResponse toResponse(User entity);
 
     @Named("toSimpleRoles")
