@@ -1,9 +1,3 @@
--- Clear Database
--- DROP TABLE IF EXISTS user_role CASCADE;
--- DROP TABLE IF EXISTS role_permission CASCADE;
--- DROP TABLE IF EXISTS users CASCADE;
--- DROP TABLE IF EXISTS roles CASCADE;
--- DROP TABLE IF EXISTS permissions CASCADE;
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- Create Tables

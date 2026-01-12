@@ -86,13 +86,23 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
     private Set<String> parsePermissionsFromJwt(Jwt jwt) {
         Set<String> permissions = new HashSet<>();
 
-        // Primary: Try authorities claim (space-separated format)
-        String authorities = jwt.getClaim("authorities");
-        if (StringUtils.hasText(authorities)) {
-            Arrays.stream(authorities.split("\\s+"))
+        // Primary: Try authorities claim (can be String or List)
+        Object authoritiesClaim = jwt.getClaim("authorities");
+        if (authoritiesClaim instanceof String authorities) {
+            if (StringUtils.hasText(authorities)) {
+                Arrays.stream(authorities.split("\\s+"))
+                        .filter(StringUtils::hasText)
+                        .map(String::trim)
+                        .filter(p -> !p.isEmpty())
+                        .filter(p -> !p.startsWith("ROLE_"))
+                        .forEach(permissions::add);
+            }
+        } else if (authoritiesClaim instanceof Collection<?> authoritiesList) {
+            authoritiesList.stream()
+                    .filter(Objects::nonNull)
+                    .map(Object::toString)
                     .filter(StringUtils::hasText)
                     .map(String::trim)
-                    .filter(p -> !p.isEmpty())
                     .filter(p -> !p.startsWith("ROLE_"))
                     .forEach(permissions::add);
         }

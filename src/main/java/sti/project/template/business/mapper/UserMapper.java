@@ -15,22 +15,22 @@ import sti.project.template.business.entity.User;
 import java.util.Set;
 
 @Mapper(config = BaseMapper.class, uses = { RoleMapper.class })
-public interface UserMapper extends BaseMapper<User, UserResponse, UserRequest> {
+public abstract class UserMapper extends BaseMapper<User, UserResponse, UserRequest> {
 
     @Override
     @Mapping(target = "roles", qualifiedByName = "toSimpleRoles")
-    UserResponse toResponse(User entity);
+    public abstract UserResponse toResponse(User entity);
 
     @Named("toSimpleRoles")
     @IterableMapping(qualifiedByName = "toSimple")
-    Set<RoleResponse> mapRolesToSimple(Set<Role> roles);
+    public abstract Set<RoleResponse> mapRolesToSimple(Set<Role> roles);
 
     @Override
     @Mapping(target = "roles", ignore = true)
-    User toEntity(UserRequest request);
+    public abstract User toEntity(UserRequest request);
 
     @Override
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "password", ignore = true)
-    void updateEntity(UserRequest request, @MappingTarget User entity);
+    public abstract void updateEntity(UserRequest request, @MappingTarget User entity);
 }

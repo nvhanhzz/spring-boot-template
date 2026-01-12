@@ -10,21 +10,21 @@ import sti.project.template.business.dto.response.PermissionResponse;
 import sti.project.template.business.entity.Permission;
 
 @Mapper(config = BaseMapper.class)
-public interface PermissionMapper extends BaseMapper<Permission, PermissionResponse, PermissionRequest> {
+public abstract class PermissionMapper extends BaseMapper<Permission, PermissionResponse, PermissionRequest> {
 
     @Override
-    PermissionResponse toResponse(Permission entity);
+    public abstract PermissionResponse toResponse(Permission entity);
 
     @Named("toSimple")
     @Mapping(target = "description", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    PermissionResponse toSimpleResponse(Permission entity);
+    public abstract PermissionResponse toSimpleResponse(Permission entity);
 
     @Override
-    Permission toEntity(PermissionRequest request);
+    public abstract Permission toEntity(PermissionRequest request);
 
     @Override
-    void updateEntity(PermissionRequest request, @MappingTarget Permission entity);
+    public abstract void updateEntity(PermissionRequest request, @MappingTarget Permission entity);
 }

@@ -1,8 +1,5 @@
 package sti.project.template.business.repository;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -20,9 +17,6 @@ public interface UserRepository extends BaseRepository<User> {
         boolean existsByEmailAndStatusNot(String email, EntityStatus status);
 
         Optional<User> findByEmailAndStatusNot(String email, EntityStatus status);
-
-        @Query("SELECT u.id FROM User u")
-        Page<UUID> findAllIds(Specification<User> spec, Pageable pageable);
 
         @Query("SELECT DISTINCT u FROM User u " +
                         "LEFT JOIN FETCH u.roles r " +

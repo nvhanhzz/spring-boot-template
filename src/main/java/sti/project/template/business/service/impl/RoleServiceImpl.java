@@ -47,28 +47,22 @@ public class RoleServiceImpl extends BaseServiceImpl<Role, RoleResponse, RoleReq
         return new String[] { "name" };
     }
 
-    /**
-     * Override search to use 2-query pattern for optimal pagination with JOIN
-     * FETCH.
-     */
     @Override
     @Transactional(readOnly = true)
     public PageDTO<RoleResponse> search(SearchCriteria criteria) {
         Sort sort = Sort.by(Sort.Direction.fromString(criteria.getSortDir()), criteria.getSortBy());
         Pageable pageable = PageRequest.of(criteria.getPage(), criteria.getSize(), sort);
-
-        // Query 1: Get IDs with pagination
         Specification<Role> spec = buildSearchSpecification(criteria);
-        Page<UUID> idPage = roleRepository.findAllIds(spec, pageable);
+        Page<Role> pageResult = roleRepository.findAll(spec, pageable);
 
-        if (idPage.isEmpty()) {
+        if (pageResult.isEmpty()) {
             return PageDTO.of(List.of(), 0L);
         }
-
-        // Query 2: Fetch entities with relationships by IDs
-        List<Role> roles = roleRepository.findByIdsWithPermissions(idPage.getContent());
-
-        return PageDTO.of(roleMapper.toResponseList(roles), idPage.getTotalElements());
+        List<UUID> ids = pageResult.getContent().stream()
+                .map(Role::getId)
+                .toList();
+        List<Role> roles = roleRepository.findByIdsWithPermissions(ids);
+        return PageDTO.of(roleMapper.toResponseList(roles), pageResult.getTotalElements());
     }
 
     @Override

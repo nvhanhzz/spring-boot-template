@@ -51,28 +51,23 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserResponse, UserReq
         return new String[] { "name", "email" };
     }
 
-    /**
-     * Override search to use 2-query pattern for optimal pagination with JOIN
-     * FETCH.
-     */
     @Override
     @Transactional(readOnly = true)
     public PageDTO<UserResponse> search(SearchCriteria criteria) {
         Sort sort = Sort.by(Sort.Direction.fromString(criteria.getSortDir()), criteria.getSortBy());
         Pageable pageable = PageRequest.of(criteria.getPage(), criteria.getSize(), sort);
-
-        // Query 1: Get IDs with pagination
         Specification<User> spec = buildSearchSpecification(criteria);
-        Page<UUID> idPage = userRepository.findAllIds(spec, pageable);
+        Page<User> pageResult = userRepository.findAll(spec, pageable);
 
-        if (idPage.isEmpty()) {
+        if (pageResult.isEmpty()) {
             return PageDTO.of(List.of(), 0L);
         }
+        List<UUID> ids = pageResult.getContent().stream()
+                .map(User::getId)
+                .toList();
+        List<User> users = userRepository.findByIdsWithRoles(ids);
 
-        // Query 2: Fetch entities with relationships by IDs
-        List<User> users = userRepository.findByIdsWithRoles(idPage.getContent());
-
-        return PageDTO.of(userMapper.toResponseList(users), idPage.getTotalElements());
+        return PageDTO.of(userMapper.toResponseList(users), pageResult.getTotalElements());
     }
 
     @Override
