@@ -10,9 +10,9 @@ import com.nimbusds.jwt.SignedJWT;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import sti.project.scada.business.entity.Permission;
-import sti.project.scada.business.entity.Role;
-import sti.project.scada.business.entity.User;
+import sti.project.template.business.entity.Permission;
+import sti.project.template.business.entity.Role;
+import sti.project.template.business.entity.User;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;

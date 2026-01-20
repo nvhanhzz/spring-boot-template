@@ -1,6 +1,9 @@
 package sti.project.template.business.mapper;
 
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
 import sti.project.template.base.mapper.AuditUserMapper;
 import sti.project.template.base.mapper.BaseMapper;
 import sti.project.template.business.dto.request.PermissionRequest;

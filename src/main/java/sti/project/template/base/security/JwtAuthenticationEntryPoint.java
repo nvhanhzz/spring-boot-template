@@ -10,9 +10,9 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
-import sti.project.scada.base.dto.ApiResponse;
-import sti.project.scada.base.exception.ErrorCode;
-import sti.project.scada.base.i18n.MessageHelper;
+import sti.project.template.base.dto.ApiResponse;
+import sti.project.template.base.exception.ErrorCode;
+import sti.project.template.base.i18n.MessageHelper;
 
 import java.io.IOException;
 

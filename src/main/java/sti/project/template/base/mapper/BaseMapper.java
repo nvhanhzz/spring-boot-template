@@ -4,8 +4,8 @@ import org.mapstruct.MapperConfig;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
-import sti.project.scada.base.dto.BaseResponseDTO;
-import sti.project.scada.base.entity.BaseEntity;
+import sti.project.template.base.dto.BaseResponseDTO;
+import sti.project.template.base.entity.BaseEntity;
 
 import java.util.List;
 

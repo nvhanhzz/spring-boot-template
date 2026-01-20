@@ -7,16 +7,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
-import sti.project.scada.base.dto.BaseResponseDTO;
-import sti.project.scada.base.dto.PageDTO;
-import sti.project.scada.base.dto.SearchCriteria;
-import sti.project.scada.base.entity.BaseEntity;
-import sti.project.scada.base.entity.EntityStatus;
-import sti.project.scada.base.exception.AppException;
-import sti.project.scada.base.exception.ErrorCode;
-import sti.project.scada.base.mapper.BaseMapper;
-import sti.project.scada.base.repository.BaseRepository;
-import sti.project.scada.base.service.BaseService;
+import sti.project.template.base.dto.BaseResponseDTO;
+import sti.project.template.base.dto.PageDTO;
+import sti.project.template.base.dto.SearchCriteria;
+import sti.project.template.base.entity.BaseEntity;
+import sti.project.template.base.entity.EntityStatus;
+import sti.project.template.base.exception.AppException;
+import sti.project.template.base.exception.ErrorCode;
+import sti.project.template.base.mapper.BaseMapper;
+import sti.project.template.base.repository.BaseRepository;
+import sti.project.template.base.service.BaseService;
 
 import java.util.*;
 

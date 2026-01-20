@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
-import sti.project.scada.base.entity.EntityStatus;
+import sti.project.template.base.entity.EntityStatus;
 
 import java.time.Instant;
 import java.util.UUID;

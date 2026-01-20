@@ -2,7 +2,7 @@ package sti.project.template.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import sti.project.scada.base.enums.PersistableEnumModule;
+import sti.project.template.base.enums.PersistableEnumModule;
 
 @Configuration
 public class JacksonConfig {

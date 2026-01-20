@@ -3,38 +3,39 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 -- Create Tables
 CREATE TABLE users (
     id UUID PRIMARY KEY,
-    created_at TIMESTAMP WITHOUT TIME ZONE,
-    updated_at TIMESTAMP WITHOUT TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE,
+    updated_at TIMESTAMP WITH TIME ZONE,
     created_by UUID,
     updated_by UUID,
-    status VARCHAR(255) NOT NULL,
+    status INTEGER NOT NULL,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     phone VARCHAR(50),
     avatar VARCHAR(255),
     address VARCHAR(255),
-    dob DATE
+    dob DATE,
+    settings JSONB
 );
 
 CREATE TABLE roles (
     id UUID PRIMARY KEY,
-    created_at TIMESTAMP WITHOUT TIME ZONE,
-    updated_at TIMESTAMP WITHOUT TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE,
+    updated_at TIMESTAMP WITH TIME ZONE,
     created_by UUID,
     updated_by UUID,
-    status VARCHAR(255) NOT NULL,
+    status INTEGER NOT NULL,
     name VARCHAR(50) NOT NULL UNIQUE,
     description VARCHAR(255)
 );
 
 CREATE TABLE permissions (
     id UUID PRIMARY KEY,
-    created_at TIMESTAMP WITHOUT TIME ZONE,
-    updated_at TIMESTAMP WITHOUT TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE,
+    updated_at TIMESTAMP WITH TIME ZONE,
     created_by UUID,
     updated_by UUID,
-    status VARCHAR(255) NOT NULL,
+    status INTEGER NOT NULL,
     name VARCHAR(50) NOT NULL UNIQUE,
     description VARCHAR(255)
 );
@@ -55,6 +56,22 @@ CREATE TABLE role_permission (
     FOREIGN KEY (permission_id) REFERENCES permissions (id)
 );
 
+CREATE TABLE pending_files (
+    id UUID PRIMARY KEY,
+    created_at TIMESTAMP
+    WITH
+        TIME ZONE,
+        updated_at TIMESTAMP
+    WITH
+        TIME ZONE,
+        created_by UUID,
+        updated_by UUID,
+        status INTEGER NOT NULL,
+        filename VARCHAR(255) NOT NULL UNIQUE,
+        original_filename VARCHAR(255) NOT NULL,
+        content_type VARCHAR(100),
+        size BIGINT
+);
 -- Insert Roles (lowercase)
 INSERT INTO
     roles (
@@ -70,7 +87,7 @@ VALUES
         gen_random_uuid (),
         NOW (),
         NOW (),
-        'ACTIVE',
+        1,
         'admin',
         'Administrator with full access'
     ),
@@ -78,7 +95,7 @@ VALUES
         gen_random_uuid (),
         NOW (),
         NOW (),
-        'ACTIVE',
+        1,
         'user',
         'Standard user'
     ) ON CONFLICT (name) DO NOTHING;
@@ -99,7 +116,7 @@ VALUES
         gen_random_uuid (),
         NOW (),
         NOW (),
-        'ACTIVE',
+        1,
         'user.view',
         'View users'
     ),
@@ -107,7 +124,7 @@ VALUES
         gen_random_uuid (),
         NOW (),
         NOW (),
-        'ACTIVE',
+        1,
         'user.create',
         'Create users'
     ),
@@ -115,7 +132,7 @@ VALUES
         gen_random_uuid (),
         NOW (),
         NOW (),
-        'ACTIVE',
+        1,
         'user.update',
         'Update users'
     ),
@@ -123,7 +140,7 @@ VALUES
         gen_random_uuid (),
         NOW (),
         NOW (),
-        'ACTIVE',
+        1,
         'user.delete',
         'Delete users'
     ),
@@ -131,7 +148,7 @@ VALUES
         gen_random_uuid (),
         NOW (),
         NOW (),
-        'ACTIVE',
+        1,
         'user.restore',
         'Restore users'
     ) ON CONFLICT (name) DO NOTHING;
@@ -151,7 +168,7 @@ VALUES
         gen_random_uuid (),
         NOW (),
         NOW (),
-        'ACTIVE',
+        1,
         'role.view',
         'View roles'
     ),
@@ -159,7 +176,7 @@ VALUES
         gen_random_uuid (),
         NOW (),
         NOW (),
-        'ACTIVE',
+        1,
         'role.create',
         'Create roles'
     ),
@@ -167,7 +184,7 @@ VALUES
         gen_random_uuid (),
         NOW (),
         NOW (),
-        'ACTIVE',
+        1,
         'role.update',
         'Update roles'
     ),
@@ -175,7 +192,7 @@ VALUES
         gen_random_uuid (),
         NOW (),
         NOW (),
-        'ACTIVE',
+        1,
         'role.delete',
         'Delete roles'
     ),
@@ -183,7 +200,7 @@ VALUES
         gen_random_uuid (),
         NOW (),
         NOW (),
-        'ACTIVE',
+        1,
         'role.restore',
         'Restore roles'
     ) ON CONFLICT (name) DO NOTHING;
@@ -203,7 +220,7 @@ VALUES
         gen_random_uuid (),
         NOW (),
         NOW (),
-        'ACTIVE',
+        1,
         'permission.view',
         'View permissions'
     ),
@@ -211,7 +228,7 @@ VALUES
         gen_random_uuid (),
         NOW (),
         NOW (),
-        'ACTIVE',
+        1,
         'permission.create',
         'Create permissions'
     ),
@@ -219,7 +236,7 @@ VALUES
         gen_random_uuid (),
         NOW (),
         NOW (),
-        'ACTIVE',
+        1,
         'permission.update',
         'Update permissions'
     ),
@@ -227,7 +244,7 @@ VALUES
         gen_random_uuid (),
         NOW (),
         NOW (),
-        'ACTIVE',
+        1,
         'permission.delete',
         'Delete permissions'
     ),
@@ -235,7 +252,7 @@ VALUES
         gen_random_uuid (),
         NOW (),
         NOW (),
-        'ACTIVE',
+        1,
         'permission.restore',
         'Restore permissions'
     ) ON CONFLICT (name) DO NOTHING;
@@ -270,7 +287,7 @@ VALUES
         gen_random_uuid (),
         NOW (),
         NOW (),
-        'ACTIVE',
+        1,
         'Admin',
         'admin@example.com',
         crypt ('Admin@123', gen_salt ('bf')),
@@ -307,7 +324,7 @@ VALUES
         gen_random_uuid (),
         NOW (),
         NOW (),
-        'ACTIVE',
+        1,
         'User',
         'user@example.com',
         crypt ('User@123', gen_salt ('bf')),

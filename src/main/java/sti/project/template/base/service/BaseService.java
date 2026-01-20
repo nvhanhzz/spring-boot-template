@@ -1,9 +1,9 @@
 package sti.project.template.base.service;
 
-import sti.project.scada.base.dto.BaseResponseDTO;
-import sti.project.scada.base.dto.PageDTO;
-import sti.project.scada.base.dto.SearchCriteria;
-import sti.project.scada.base.entity.BaseEntity;
+import sti.project.template.base.dto.BaseResponseDTO;
+import sti.project.template.base.dto.PageDTO;
+import sti.project.template.base.dto.SearchCriteria;
+import sti.project.template.base.entity.BaseEntity;
 
 import java.util.UUID;
 

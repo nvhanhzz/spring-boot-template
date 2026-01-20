@@ -1,7 +1,7 @@
 package sti.project.template.base.dto;
 
 import lombok.Data;
-import sti.project.scada.base.entity.EntityStatus;
+import sti.project.template.base.entity.EntityStatus;
 
 import java.util.List;
 import java.util.Map;

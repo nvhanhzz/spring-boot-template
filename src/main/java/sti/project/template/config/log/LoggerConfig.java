@@ -8,7 +8,7 @@ public final class LoggerConfig {
     private LoggerConfig() {
     }
 
-    public static final Logger EVENT = LoggerFactory.getLogger("sti.project.scada.event");
+    public static final Logger EVENT = LoggerFactory.getLogger("sti.project.template.event");
 
-    public static final Logger HTTP = LoggerFactory.getLogger("sti.project.scada.http");
+    public static final Logger HTTP = LoggerFactory.getLogger("sti.project.template.http");
 }

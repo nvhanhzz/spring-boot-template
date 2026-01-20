@@ -9,6 +9,7 @@ import sti.project.template.business.dto.response.RoleResponse;
 import sti.project.template.business.entity.Permission;
 import sti.project.template.business.entity.Role;
 
+import java.util.List;
 import java.util.Set;
 
 @Mapper(config = BaseMapper.class, uses = { AuditUserMapper.class, PermissionMapper.class })
@@ -22,7 +23,7 @@ public abstract class RoleMapper extends BaseMapper<Role, RoleResponse, RoleRequ
 
     @Named("toSimplePermissions")
     @IterableMapping(qualifiedByName = "toSimple")
-    public abstract Set<PermissionResponse> mapPermissionsToSimple(Set<Permission> permissions);
+    public abstract List<PermissionResponse> mapPermissionsToSimple(Set<Permission> permissions);
 
     @Named("toSimple")
     @Mapping(target = "description", ignore = true)

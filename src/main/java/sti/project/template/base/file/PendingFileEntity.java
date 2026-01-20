@@ -5,7 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import sti.project.scada.base.entity.BaseEntity;
+import sti.project.template.base.entity.BaseEntity;
 
 @Entity
 @Table(name = "pending_files")

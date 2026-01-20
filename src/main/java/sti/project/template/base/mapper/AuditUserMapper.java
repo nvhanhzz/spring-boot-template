@@ -3,9 +3,9 @@ package sti.project.template.base.mapper;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.stereotype.Component;
-import sti.project.scada.base.dto.AuditUserResponse;
-import sti.project.scada.business.entity.User;
-import sti.project.scada.business.repository.UserRepository;
+import sti.project.template.base.dto.AuditUserResponse;
+import sti.project.template.business.entity.User;
+import sti.project.template.business.repository.UserRepository;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;

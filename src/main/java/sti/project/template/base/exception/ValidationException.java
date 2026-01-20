@@ -1,7 +1,7 @@
 package sti.project.template.base.exception;
 
 import lombok.Getter;
-import sti.project.scada.base.dto.FieldErrorDetail;
+import sti.project.template.base.dto.FieldErrorDetail;
 
 import java.util.List;
 

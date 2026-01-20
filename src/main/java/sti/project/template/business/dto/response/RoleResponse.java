@@ -5,7 +5,7 @@ import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.FieldDefaults;
-import sti.project.scada.base.dto.BaseResponseDTO;
+import sti.project.template.base.dto.BaseResponseDTO;
 
 import java.util.List;
 

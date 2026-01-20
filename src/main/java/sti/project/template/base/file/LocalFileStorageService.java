@@ -8,8 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import sti.project.scada.base.exception.AppException;
-import sti.project.scada.base.exception.ErrorCode;
+import sti.project.template.base.exception.AppException;
+import sti.project.template.base.exception.ErrorCode;
 
 import java.io.IOException;
 import java.io.InputStream;

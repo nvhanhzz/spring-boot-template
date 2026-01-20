@@ -2,8 +2,8 @@ package sti.project.template.base.dto;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import sti.project.scada.base.exception.ErrorCode;
-import sti.project.scada.base.i18n.MessageHelper;
+import sti.project.template.base.exception.ErrorCode;
+import sti.project.template.base.i18n.MessageHelper;
 
 import java.util.List;
 

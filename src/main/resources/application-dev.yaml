@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://192.168.1.61:5433/scada-dev
+    url: jdbc:postgresql://192.168.1.61:5433/template-db-spring-boot
     driver-class-name: org.postgresql.Driver
     username: postgres
     password: postgres123

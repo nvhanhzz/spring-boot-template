@@ -1,7 +1,7 @@
 package sti.project.template.base.entity;
 
 import jakarta.persistence.Converter;
-import sti.project.scada.base.enums.PersistableEnum;
+import sti.project.template.base.enums.PersistableEnum;
 
 public enum EntityStatus implements PersistableEnum<Integer> {
     ACTIVE(1),

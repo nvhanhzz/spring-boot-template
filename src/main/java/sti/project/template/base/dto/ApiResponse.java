@@ -3,7 +3,7 @@ package sti.project.template.base.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import sti.project.scada.base.exception.ErrorCode;
+import sti.project.template.base.exception.ErrorCode;
 
 import java.time.Instant;
 import java.util.List;

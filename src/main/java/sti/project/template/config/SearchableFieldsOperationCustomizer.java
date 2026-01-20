@@ -11,8 +11,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
-import sti.project.scada.base.controller.BaseController;
-import sti.project.scada.base.service.BaseService;
+import sti.project.template.base.controller.BaseController;
+import sti.project.template.base.service.BaseService;
 
 import java.lang.reflect.Field;
 import java.util.Map;

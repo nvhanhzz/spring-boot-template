@@ -5,8 +5,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
-import sti.project.scada.base.entity.BaseEntity;
-import sti.project.scada.base.entity.EntityStatus;
+import sti.project.template.base.entity.BaseEntity;
+import sti.project.template.base.entity.EntityStatus;
 
 import java.util.List;
 import java.util.Optional;

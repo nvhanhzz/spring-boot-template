@@ -9,10 +9,10 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import sti.project.scada.base.dto.*;
-import sti.project.scada.base.entity.BaseEntity;
-import sti.project.scada.base.entity.EntityStatus;
-import sti.project.scada.base.service.BaseService;
+import sti.project.template.base.dto.*;
+import sti.project.template.base.entity.BaseEntity;
+import sti.project.template.base.entity.EntityStatus;
+import sti.project.template.base.service.BaseService;
 
 import java.util.List;
 import java.util.Map;

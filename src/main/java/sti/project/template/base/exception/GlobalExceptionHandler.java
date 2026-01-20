@@ -26,9 +26,9 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import sti.project.scada.base.dto.ApiResponse;
-import sti.project.scada.base.dto.ApiResponseFactory;
-import sti.project.scada.base.dto.FieldErrorDetail;
+import sti.project.template.base.dto.ApiResponse;
+import sti.project.template.base.dto.ApiResponseFactory;
+import sti.project.template.base.dto.FieldErrorDetail;
 
 import java.io.IOException;
 import java.util.Arrays;

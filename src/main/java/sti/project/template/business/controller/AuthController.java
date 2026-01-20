@@ -6,15 +6,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import sti.project.scada.base.constant.ApiVersion;
-import sti.project.scada.base.dto.ApiResponse;
-import sti.project.scada.base.dto.ApiResponseFactory;
-import sti.project.scada.business.dto.request.LoginRequest;
-import sti.project.scada.business.dto.request.RefreshTokenRequest;
-import sti.project.scada.business.dto.request.UpdateProfileRequest;
-import sti.project.scada.business.dto.response.AuthResponse;
-import sti.project.scada.business.dto.response.UserResponse;
-import sti.project.scada.business.service.AuthService;
+import sti.project.template.base.constant.ApiVersion;
+import sti.project.template.base.dto.ApiResponse;
+import sti.project.template.base.dto.ApiResponseFactory;
+import sti.project.template.business.dto.request.LoginRequest;
+import sti.project.template.business.dto.request.RefreshTokenRequest;
+import sti.project.template.business.dto.request.UpdateProfileRequest;
+import sti.project.template.business.dto.response.AuthResponse;
+import sti.project.template.business.dto.response.UserResponse;
+import sti.project.template.business.service.AuthService;
 
 @RestController
 @RequestMapping(ApiVersion.V1 + "/auth")

@@ -2,7 +2,9 @@ package sti.project.template.business.enums;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Converter;
-import sti.project.scada.base.enums.PersistableEnum;
+import sti.project.template.base.enums.PersistableEnum;
+
+// ENUM FOR EXAMPLE
 
 @Schema(enumAsRef = true, description = "Types of visual assets")
 public enum AssetType implements PersistableEnum<Integer> {

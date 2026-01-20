@@ -11,9 +11,9 @@ import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import sti.project.scada.base.constant.ApiVersion;
-import sti.project.scada.base.dto.ApiResponse;
-import sti.project.scada.base.dto.ApiResponseFactory;
+import sti.project.template.base.constant.ApiVersion;
+import sti.project.template.base.dto.ApiResponse;
+import sti.project.template.base.dto.ApiResponseFactory;
 
 import java.util.List;
 
