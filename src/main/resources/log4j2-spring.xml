@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+
+    <Properties>
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</Property>
+        <Property name="LOG_PATH">logs</Property>
+        <Property name="APP_NAME">scada</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}" />
+        </Console>
+
+        <RollingFile name="AppFile"
+                     fileName="${LOG_PATH}/app/${APP_NAME}.log"
+                     filePattern="${LOG_PATH}/app/${APP_NAME}-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}" />
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+                <SizeBasedTriggeringPolicy size="50MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="30" />
+        </RollingFile>
+
+        <RollingFile name="ErrorFile"
+                     fileName="${LOG_PATH}/error/${APP_NAME}-error.log"
+                     filePattern="${LOG_PATH}/error/${APP_NAME}-error-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}" />
+            <LevelRangeFilter minLevel="ERROR" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+                <SizeBasedTriggeringPolicy size="50MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="30" />
+        </RollingFile>
+
+        <RollingFile name="EventFile"
+                     fileName="${LOG_PATH}/event/log/${APP_NAME}-event.log"
+                     filePattern="${LOG_PATH}/event/log/${APP_NAME}-event-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}" />
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+                <SizeBasedTriggeringPolicy size="50MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="30" />
+        </RollingFile>
+
+        <RollingFile name="EventErrorFile"
+                     fileName="${LOG_PATH}/event/error/${APP_NAME}-event-error.log"
+                     filePattern="${LOG_PATH}/event/error/${APP_NAME}-event-error-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}" />
+            <LevelRangeFilter minLevel="ERROR" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+                <SizeBasedTriggeringPolicy size="50MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="30" />
+        </RollingFile>
+
+        <RollingFile name="HttpFile"
+                     fileName="${LOG_PATH}/http/${APP_NAME}-http.log"
+                     filePattern="${LOG_PATH}/http/${APP_NAME}-http-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}" />
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+                <SizeBasedTriggeringPolicy size="50MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="14" />
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="sti.project.scada.http" level="INFO" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="HttpFile" />
+        </Logger>
+
+        <Logger name="sti.project.scada.event" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="EventFile" />
+            <AppenderRef ref="EventErrorFile" />
+        </Logger>
+
+        <Logger name="sti.project.scada" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="AppFile" />
+            <AppenderRef ref="ErrorFile" />
+        </Logger>
+
+        <Logger name="org.springframework" level="INFO" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="AppFile" />
+        </Logger>
+
+        <Logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="AppFile" />
+        </Logger>
+
+        <Logger name="org.hibernate.orm.jdbc.bind" level="INFO" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="AppFile" />
+        </Logger>
+
+        <Logger name="org.flywaydb" level="INFO" additivity="false">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="AppFile" />
+        </Logger>
+
+        <Root level="INFO">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="AppFile" />
+            <AppenderRef ref="ErrorFile" />
+        </Root>
+    </Loggers>
+
+</Configuration>

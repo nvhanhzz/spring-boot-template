@@ -24,6 +24,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
     @Value("${app.security.jwt.secret-key}")
     private String jwtSecretKey;
 
@@ -58,7 +60,7 @@ public class SecurityConfig {
                     jwtConfigurer.decoder(customJwtDecoder());
                     jwtConfigurer.jwtAuthenticationConverter(jwtAuthenticationConverter());
                 })
-                .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
         httpSecurity.csrf(AbstractHttpConfigurer::disable);
 

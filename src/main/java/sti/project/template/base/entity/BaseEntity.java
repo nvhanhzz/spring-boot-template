@@ -10,13 +10,9 @@ import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
-/**
- * Base entity class with common audit fields.
- * All entities should extend this class.
- */
 @Getter
 @Setter
 @MappedSuperclass
@@ -29,11 +25,11 @@ public abstract class BaseEntity {
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @LastModifiedDate
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     @CreatedBy
     @Column(name = "created_by", updatable = false)
@@ -43,14 +39,13 @@ public abstract class BaseEntity {
     @Column(name = "updated_by")
     private UUID updatedBy;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EntityStatus status = EntityStatus.ACTIVE;
 
     @PrePersist
     protected void onCreate() {
         if (this.id == null) {
-            this.id = UuidCreator.getTimeOrderedEpoch(); // UUID v7
+            this.id = UuidCreator.getTimeOrderedEpoch();
         }
     }
 }

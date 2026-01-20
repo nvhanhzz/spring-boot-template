@@ -2,26 +2,29 @@ package sti.project.template.business.service.impl;
 
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.SignedJWT;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import sti.project.template.base.entity.EntityStatus;
-import sti.project.template.base.exception.AppException;
-import sti.project.template.base.exception.ErrorCode;
-import sti.project.template.base.security.AuthUserContext;
-import sti.project.template.base.security.JwtUtils;
-import sti.project.template.business.dto.request.LoginRequest;
-import sti.project.template.business.dto.request.RefreshTokenRequest;
-import sti.project.template.business.dto.request.UpdateProfileRequest;
-import sti.project.template.business.dto.response.AuthResponse;
-import sti.project.template.business.dto.response.UserResponse;
-import sti.project.template.business.entity.User;
-import sti.project.template.business.mapper.UserMapper;
-import sti.project.template.business.repository.UserRepository;
-import sti.project.template.business.service.AuthService;
+import sti.project.scada.base.entity.EntityStatus;
+import sti.project.scada.base.exception.AppException;
+import sti.project.scada.base.exception.ErrorCode;
+import sti.project.scada.base.security.AuthUserContext;
+import sti.project.scada.base.security.JwtUtils;
+import sti.project.scada.business.dto.request.LoginRequest;
+import sti.project.scada.business.dto.request.RefreshTokenRequest;
+import sti.project.scada.business.dto.request.UpdateProfileRequest;
+import sti.project.scada.business.dto.response.AuthResponse;
+import sti.project.scada.business.dto.response.UserResponse;
+import sti.project.scada.business.entity.User;
+import sti.project.scada.business.mapper.UserMapper;
+import sti.project.scada.business.repository.UserRepository;
+import sti.project.scada.business.service.AuthService;
 
 import java.util.Date;
 import java.util.UUID;
@@ -29,14 +32,16 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthServiceImpl implements AuthService {
 
-    private final UserRepository userRepository;
-    private final UserMapper userMapper;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtUtils jwtUtils;
-    private final AuthUserContext authUserContext;
+    UserRepository userRepository;
+    UserMapper userMapper;
+    PasswordEncoder passwordEncoder;
+    JwtUtils jwtUtils;
+    AuthUserContext authUserContext;
 
+    @NonFinal
     @Value("${app.security.jwt.secret-key}")
     private String secretKey;
 
@@ -90,23 +95,7 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public UserResponse updateMe(UpdateProfileRequest request) {
         User user = getCurrentUser();
-
-        if (request.getName() != null) {
-            user.setName(request.getName());
-        }
-        if (request.getPhone() != null) {
-            user.setPhone(request.getPhone());
-        }
-        if (request.getAvatar() != null) {
-            user.setAvatar(request.getAvatar());
-        }
-        if (request.getAddress() != null) {
-            user.setAddress(request.getAddress());
-        }
-        if (request.getDob() != null) {
-            user.setDob(request.getDob());
-        }
-
+        userMapper.updateFromProfileRequest(request, user);
         user = userRepository.save(user);
         return userMapper.toResponse(user);
     }

@@ -4,12 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import sti.project.template.base.dto.ApiResponse;
-import sti.project.template.base.exception.ErrorCode;
+import org.springframework.stereotype.Component;
+import sti.project.scada.base.dto.ApiResponse;
+import sti.project.scada.base.exception.ErrorCode;
+import sti.project.scada.base.i18n.MessageHelper;
 
 import java.io.IOException;
 
@@ -17,14 +20,16 @@ import java.io.IOException;
  * Entry point for handling authentication failures (401 Unauthorized).
  */
 @Slf4j
+@Component
+@RequiredArgsConstructor
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-    private final ObjectMapper objectMapper;
-
-    public JwtAuthenticationEntryPoint() {
-        this.objectMapper = new ObjectMapper();
-        this.objectMapper.registerModule(new JavaTimeModule());
-    }
+    private final MessageHelper messageHelper;
+    private final ObjectMapper objectMapper = new ObjectMapper() {
+        {
+            registerModule(new JavaTimeModule());
+        }
+    };
 
     @Override
     public void commence(
@@ -41,7 +46,8 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
 
-        ApiResponse<?> apiResponse = ApiResponse.fromErrorCode(errorCode, request.getRequestURI());
+        String message = messageHelper.getMessage(errorCode.getMessageKey());
+        ApiResponse<?> apiResponse = ApiResponse.fromErrorCode(errorCode, message, request.getRequestURI());
 
         try {
             String jsonResponse = objectMapper.writeValueAsString(apiResponse);

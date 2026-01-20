@@ -1,6 +1,6 @@
 spring:
   application:
-    name: Template API
+    name: Scada backend
   profiles:
     active: dev
 

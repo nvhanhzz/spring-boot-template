@@ -3,40 +3,43 @@ package sti.project.template.business.dto.request;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserRequest {
 
-    @NotBlank(message = "Name is required")
-    @Size(max = 255, message = "Name must be at most 255 characters")
-    private String name;
+    @NotBlank(message = "{validation.name.required}")
+    @Size(max = 255, message = "{validation.name.size}")
+    String name;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email must be valid")
-    @Size(max = 50, message = "Email must be at most 50 characters")
-    private String email;
+    @NotBlank(message = "{validation.email.required}")
+    @Email(message = "{validation.email.invalid}")
+    @Size(max = 50, message = "{validation.email.size}")
+    String email;
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 6, max = 255, message = "Password must be between 6 and 255 characters")
-    private String password;
+    @NotBlank(message = "{validation.password.required}")
+    @Size(min = 6, max = 255, message = "{validation.password.size}")
+    String password;
 
-    @Size(max = 50, message = "Phone must be at most 50 characters")
-    private String phone;
+    @Size(max = 50, message = "{validation.phone.size}")
+    String phone;
 
-    private String avatar;
+    String avatar;
 
-    private String address;
+    String address;
 
-    private LocalDate dob;
+    LocalDate dob;
 
-    private Set<UUID> roleIds;
+    List<UUID> roleIds;
 }

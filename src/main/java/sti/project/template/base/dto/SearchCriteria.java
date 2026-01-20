@@ -1,12 +1,11 @@
 package sti.project.template.base.dto;
 
 import lombok.Data;
+import sti.project.scada.base.entity.EntityStatus;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
-import sti.project.template.base.entity.EntityStatus;
 
 /**
  * Search criteria DTO for dynamic field search.

@@ -1,11 +1,14 @@
 package sti.project.template.base.exception;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.OptimisticLockException;
 import jakarta.persistence.PersistenceException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -15,7 +18,6 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -24,12 +26,14 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import sti.project.template.base.dto.ApiResponse;
-import sti.project.template.base.dto.ApiResponseFactory;
-import sti.project.template.base.dto.FieldErrorDetail;
+import sti.project.scada.base.dto.ApiResponse;
+import sti.project.scada.base.dto.ApiResponseFactory;
+import sti.project.scada.base.dto.FieldErrorDetail;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
@@ -42,6 +46,7 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler {
 
         private final ApiResponseFactory responseFactory;
+        private final MessageSource messageSource;
 
         // ============== SECURITY EXCEPTIONS ==============
 
@@ -67,8 +72,13 @@ public class GlobalExceptionHandler {
         public ResponseEntity<ApiResponse<Void>> handleAppException(AppException ex, WebRequest request) {
                 ErrorCode errorCode = ex.getErrorCode();
                 log.warn("AppException: {} - Code: {}", errorCode.getMessageKey(), errorCode.getCode());
+
+                Object[] args = ex.hasMessageArgs()
+                                ? ex.getMessageArgs()
+                                : new Object[] { "Resource" };
+
                 return ResponseEntity.status(errorCode.getStatusCode())
-                                .body(responseFactory.error(errorCode, extractPath(request)));
+                                .body(responseFactory.error(errorCode, extractPath(request), args));
         }
 
         // ============== JPA/HIBERNATE EXCEPTIONS ==============
@@ -169,17 +179,9 @@ public class GlobalExceptionHandler {
                                 .map(error -> new FieldErrorDetail(error.getField(), error.getDefaultMessage()))
                                 .collect(Collectors.toList());
 
-                String firstError = ex.getBindingResult().getFieldErrors().stream()
-                                .findFirst()
-                                .map(FieldError::getDefaultMessage)
-                                .orElse("Validation failed");
-
                 log.warn("Validation failed: {}", fieldErrors);
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                .body(responseFactory.error(
-                                                ErrorCode.VALIDATION_FAILED.getCode(),
-                                                firstError,
-                                                extractPath(request),
+                                .body(responseFactory.error(ErrorCode.VALIDATION_FAILED, extractPath(request),
                                                 fieldErrors));
         }
 
@@ -209,6 +211,30 @@ public class GlobalExceptionHandler {
         public ResponseEntity<ApiResponse<Void>> handleMethodArgumentTypeMismatchException(
                         MethodArgumentTypeMismatchException ex, WebRequest request) {
                 log.warn("Type mismatch for parameter: {}", ex.getName());
+
+                Class<?> requiredType = ex.getRequiredType();
+                if (requiredType != null && requiredType.isEnum()) {
+                        Object[] enumConstants = requiredType.getEnumConstants();
+                        String validValues = Arrays.stream(enumConstants)
+                                        .map(Object::toString)
+                                        .collect(Collectors.joining(", "));
+                        String paramName = ex.getName();
+                        String invalidValue = ex.getValue() != null ? ex.getValue().toString() : "null";
+
+                        Locale locale = LocaleContextHolder.getLocale();
+                        String localizedMessage = messageSource.getMessage(
+                                        "error.invalid_enum_value.detail",
+                                        new Object[] { invalidValue, paramName, validValues },
+                                        locale);
+
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                        .body(responseFactory.error(
+                                                        ErrorCode.INVALID_ENUM_VALUE.getCode(),
+                                                        localizedMessage,
+                                                        extractPath(request),
+                                                        null));
+                }
+
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                 .body(responseFactory.error(ErrorCode.INVALID_PARAM, extractPath(request)));
         }
@@ -216,7 +242,36 @@ public class GlobalExceptionHandler {
         @ExceptionHandler(HttpMessageNotReadableException.class)
         public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(
                         HttpMessageNotReadableException ex, WebRequest request) {
-                log.warn("Malformed JSON: {}", ex.getMostSpecificCause().getMessage());
+                Throwable cause = ex.getMostSpecificCause();
+                String message = cause.getMessage();
+                log.warn("Malformed JSON: {}", message);
+
+                if (cause instanceof InvalidFormatException invalidFormatEx) {
+                        Class<?> targetType = invalidFormatEx.getTargetType();
+                        if (targetType != null && targetType.isEnum()) {
+                                Object[] enumConstants = targetType.getEnumConstants();
+                                String validValues = Arrays.stream(enumConstants)
+                                                .map(Object::toString)
+                                                .collect(Collectors.joining(", "));
+                                String fieldName = invalidFormatEx.getPath().isEmpty() ? "field"
+                                                : invalidFormatEx.getPath().get(0).getFieldName();
+                                String invalidValue = String.valueOf(invalidFormatEx.getValue());
+
+                                Locale locale = LocaleContextHolder.getLocale();
+                                String localizedMessage = messageSource.getMessage(
+                                                "error.invalid_enum_value.detail",
+                                                new Object[] { invalidValue, fieldName, validValues },
+                                                locale);
+
+                                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                                .body(responseFactory.error(
+                                                                ErrorCode.INVALID_ENUM_VALUE.getCode(),
+                                                                localizedMessage,
+                                                                extractPath(request),
+                                                                null));
+                        }
+                }
+
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                 .body(responseFactory.error(ErrorCode.INVALID_JSON_FORMAT, extractPath(request)));
         }

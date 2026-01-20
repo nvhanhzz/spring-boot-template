@@ -1,19 +1,18 @@
 package sti.project.template.business.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class AuthResponse {
-    private String accessToken;
-    private String refreshToken;
-    private String tokenType;
-    private UserResponse user;
+    String accessToken;
+    String refreshToken;
+    String tokenType;
+    UserResponse user;
 
     public static AuthResponse of(String accessToken, String refreshToken, UserResponse user) {
         return AuthResponse.builder()

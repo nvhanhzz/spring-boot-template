@@ -1,12 +1,11 @@
 package sti.project.template.base.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import sti.project.template.base.exception.ErrorCode;
+import sti.project.scada.base.exception.ErrorCode;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -31,8 +30,7 @@ public class ApiResponse<T> {
 
     String path;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    LocalDateTime timestamp;
+    Instant timestamp;
 
     List<FieldErrorDetail> fieldErrors;
 
@@ -42,7 +40,7 @@ public class ApiResponse<T> {
         return ApiResponse.<T>builder()
                 .status(200)
                 .data(data)
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
     }
 
@@ -51,7 +49,7 @@ public class ApiResponse<T> {
                 .status(200)
                 .message(message)
                 .data(data)
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
     }
 
@@ -60,7 +58,7 @@ public class ApiResponse<T> {
                 .status(201)
                 .message("Created successfully")
                 .data(data)
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
     }
 
@@ -69,7 +67,7 @@ public class ApiResponse<T> {
                 .status(201)
                 .message(message)
                 .data(data)
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
     }
 
@@ -77,7 +75,7 @@ public class ApiResponse<T> {
         return ApiResponse.<T>builder()
                 .status(204)
                 .message("No content")
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
     }
 
@@ -87,7 +85,7 @@ public class ApiResponse<T> {
         return ApiResponse.<T>builder()
                 .status(status)
                 .message(message)
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
     }
 
@@ -96,7 +94,7 @@ public class ApiResponse<T> {
                 .status(status)
                 .message(message)
                 .path(path)
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
     }
 
@@ -107,7 +105,7 @@ public class ApiResponse<T> {
                 .message(message)
                 .path(path)
                 .fieldErrors(fieldErrors)
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
     }
 
@@ -116,7 +114,7 @@ public class ApiResponse<T> {
                 .status(errorCode.getCode())
                 .message(errorCode.getMessageKey())
                 .path(path)
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
     }
 
@@ -125,7 +123,7 @@ public class ApiResponse<T> {
                 .status(errorCode.getCode())
                 .message(message)
                 .path(path)
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
     }
 

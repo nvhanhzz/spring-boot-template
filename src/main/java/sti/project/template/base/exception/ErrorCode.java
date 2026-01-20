@@ -37,6 +37,7 @@ public enum ErrorCode {
     CONSTRAINT_VIOLATION(3006, "error.constraint_violation", HttpStatus.BAD_REQUEST),
     INVALID_DATE(3007, "error.invalid_date", HttpStatus.BAD_REQUEST),
     INVALID_JSON_FORMAT(3008, "error.invalid_json_format", HttpStatus.BAD_REQUEST),
+    INVALID_ENUM_VALUE(3009, "error.invalid_enum_value", HttpStatus.BAD_REQUEST),
 
     // File/Media errors (4000 - 4999)
     MEDIA_UPLOAD_FAILED(4001, "error.file_upload_failed", HttpStatus.INTERNAL_SERVER_ERROR),
@@ -48,6 +49,10 @@ public enum ErrorCode {
     // Business logic errors (5000 - 5999)
     CONFLICT(5001, "error.conflict", HttpStatus.CONFLICT),
     NAME_EXISTS(5002, "error.name_exists", HttpStatus.BAD_REQUEST),
+    CODE_EXISTS(5003, "error.code_exists", HttpStatus.BAD_REQUEST),
+    INVALID_DATA_POINT_IDS(5004, "error.invalid_data_point_ids", HttpStatus.BAD_REQUEST),
+    MACHINE_AND_GROUP_EXCLUSIVE(5005, "error.machine_and_group_exclusive", HttpStatus.BAD_REQUEST),
+    CANNOT_CHANGE_ASSIGNMENT_TYPE(5006, "error.cannot_change_assignment_type", HttpStatus.BAD_REQUEST),
 
     // Database errors (6000 - 6999)
     DUPLICATE_KEY(6001, "error.duplicate_key", HttpStatus.CONFLICT),

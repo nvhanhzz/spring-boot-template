@@ -7,22 +7,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
-import sti.project.template.base.dto.BaseResponseDTO;
-import sti.project.template.base.dto.PageDTO;
-import sti.project.template.base.dto.SearchCriteria;
-import sti.project.template.base.entity.BaseEntity;
-import sti.project.template.base.entity.EntityStatus;
-import sti.project.template.base.exception.AppException;
-import sti.project.template.base.exception.ErrorCode;
-import sti.project.template.base.mapper.BaseMapper;
-import sti.project.template.base.repository.BaseRepository;
-import sti.project.template.base.service.BaseService;
+import sti.project.scada.base.dto.BaseResponseDTO;
+import sti.project.scada.base.dto.PageDTO;
+import sti.project.scada.base.dto.SearchCriteria;
+import sti.project.scada.base.entity.BaseEntity;
+import sti.project.scada.base.entity.EntityStatus;
+import sti.project.scada.base.exception.AppException;
+import sti.project.scada.base.exception.ErrorCode;
+import sti.project.scada.base.mapper.BaseMapper;
+import sti.project.scada.base.repository.BaseRepository;
+import sti.project.scada.base.service.BaseService;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Abstract base service implementation with common CRUD operations.
@@ -37,18 +33,20 @@ public abstract class BaseServiceImpl<T extends BaseEntity, Res extends BaseResp
     protected final BaseRepository<T> repository;
     protected final BaseMapper<T, Res, Req> mapper;
     protected final Class<T> entityClass;
+    protected final String resourceName;
 
     protected BaseServiceImpl(BaseRepository<T> repository, BaseMapper<T, Res, Req> mapper, Class<T> entityClass) {
         this.repository = repository;
         this.mapper = mapper;
         this.entityClass = entityClass;
+        this.resourceName = entityClass.getSimpleName();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Res getById(UUID id) {
         T entity = repository.findActiveById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND, resourceName));
         return mapper.toResponse(entity);
     }
 
@@ -115,7 +113,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity, Res extends BaseResp
     @Transactional
     public Res update(UUID id, Req request) {
         T entity = repository.findActiveById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND, resourceName));
 
         beforeUpdate(entity, request);
         mapper.updateEntity(request, entity);
@@ -128,7 +126,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity, Res extends BaseResp
     @Transactional
     public void delete(UUID id) {
         T entity = repository.findActiveById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND, resourceName));
 
         beforeDelete(entity);
         entity.setStatus(EntityStatus.DELETED);
@@ -140,7 +138,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity, Res extends BaseResp
     @Transactional
     public Res restore(UUID id) {
         T entity = repository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND, resourceName));
 
         if (entity.getStatus() != EntityStatus.DELETED) {
             throw new AppException(ErrorCode.BAD_REQUEST);
@@ -156,7 +154,7 @@ public abstract class BaseServiceImpl<T extends BaseEntity, Res extends BaseResp
     @Transactional
     public Res toggleActive(UUID id) {
         T entity = repository.findActiveById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND, resourceName));
 
         if (entity.getStatus() == EntityStatus.ACTIVE) {
             entity.setStatus(EntityStatus.INACTIVE);

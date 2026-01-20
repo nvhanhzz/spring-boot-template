@@ -1,22 +1,25 @@
 package sti.project.template.business.service.impl;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
-import sti.project.template.base.entity.EntityStatus;
-import sti.project.template.base.exception.AppException;
-import sti.project.template.base.exception.ErrorCode;
-import sti.project.template.base.service.impl.BaseServiceImpl;
-import sti.project.template.business.dto.request.PermissionRequest;
-import sti.project.template.business.dto.response.PermissionResponse;
-import sti.project.template.business.entity.Permission;
-import sti.project.template.business.mapper.PermissionMapper;
-import sti.project.template.business.repository.PermissionRepository;
-import sti.project.template.business.service.PermissionService;
+import sti.project.scada.base.entity.EntityStatus;
+import sti.project.scada.base.exception.AppException;
+import sti.project.scada.base.exception.ErrorCode;
+import sti.project.scada.base.service.impl.BaseServiceImpl;
+import sti.project.scada.business.dto.request.PermissionRequest;
+import sti.project.scada.business.dto.response.PermissionResponse;
+import sti.project.scada.business.entity.Permission;
+import sti.project.scada.business.mapper.PermissionMapper;
+import sti.project.scada.business.repository.PermissionRepository;
+import sti.project.scada.business.service.PermissionService;
 
 @Service
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class PermissionServiceImpl extends BaseServiceImpl<Permission, PermissionResponse, PermissionRequest>
         implements PermissionService {
 
-    private final PermissionRepository permissionRepository;
+    PermissionRepository permissionRepository;
 
     public PermissionServiceImpl(PermissionRepository repository, PermissionMapper mapper) {
         super(repository, mapper, Permission.class);

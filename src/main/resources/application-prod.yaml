@@ -1,13 +1,12 @@
-# Production profile - PostgreSQL database
 server:
   port: 8080
 
 spring:
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:template_db}
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
     driver-class-name: org.postgresql.Driver
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:postgres}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
 
   jpa:
     hibernate:
@@ -17,24 +16,30 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
-# Disable Swagger in production
 springdoc:
   api-docs:
     enabled: false
   swagger-ui:
     enabled: false
 
-# Logging - SLF4J
 logging:
-  level:
-    root: WARN
-    sti.project.template: INFO
+  config: classpath:log4j2-spring-prod.xml
 
-# Security - JWT Configuration (use environment variable in production)
 app:
   security:
     jwt:
       secret-key: ${JWT_SECRET}
       authorities-claim-name: authorities
-      access-token-expiration: ${JWT_ACCESS_EXPIRATION:3600}
-      refresh-token-expiration: ${JWT_REFRESH_EXPIRATION:604800}
+      access-token-expiration: ${JWT_ACCESS_EXPIRATION}
+      refresh-token-expiration: ${JWT_REFRESH_EXPIRATION}
+  file:
+    upload-dir: ${FILE_UPLOAD_DIR}
+    max-file-size: ${FILE_MAX_SIZE}
+    allowed-types:
+      - image/jpeg
+      - image/png
+      - image/gif
+      - image/webp
+    base-url: ${FILE_BASE_URL}
+    cleanup-enabled: true
+    cleanup-after-hours: 24

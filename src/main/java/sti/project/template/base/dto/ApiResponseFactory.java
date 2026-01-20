@@ -2,8 +2,8 @@ package sti.project.template.base.dto;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import sti.project.template.base.exception.ErrorCode;
-import sti.project.template.base.i18n.MessageHelper;
+import sti.project.scada.base.exception.ErrorCode;
+import sti.project.scada.base.i18n.MessageHelper;
 
 import java.util.List;
 
@@ -53,6 +53,16 @@ public class ApiResponseFactory {
         return ApiResponse.error(
                 errorCode.getCode(),
                 messageHelper.getMessage(errorCode.getMessageKey()),
+                path);
+    }
+
+    /**
+     * Create error response from ErrorCode with i18n message arguments.
+     */
+    public <T> ApiResponse<T> error(ErrorCode errorCode, String path, Object[] args) {
+        return ApiResponse.error(
+                errorCode.getCode(),
+                messageHelper.getMessage(errorCode.getMessageKey(), args),
                 path);
     }
 

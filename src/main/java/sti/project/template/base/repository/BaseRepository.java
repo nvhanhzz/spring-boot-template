@@ -5,8 +5,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
-import sti.project.template.base.entity.BaseEntity;
-import sti.project.template.base.entity.EntityStatus;
+import sti.project.scada.base.entity.BaseEntity;
+import sti.project.scada.base.entity.EntityStatus;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +25,11 @@ public interface BaseRepository<T extends BaseEntity> extends JpaRepository<T, U
      * Find entity by ID excluding deleted status
      */
     Optional<T> findByIdAndStatusNot(UUID id, EntityStatus status);
+
+    /**
+     * Check if entity exists by ID excluding a specific status
+     */
+    boolean existsByIdAndStatusNot(UUID id, EntityStatus status);
 
     /**
      * Find all entities excluding a specific status
